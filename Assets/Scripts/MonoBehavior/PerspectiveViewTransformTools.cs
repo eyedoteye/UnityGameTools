@@ -1,0 +1,34 @@
+﻿using UnityEngine;
+
+public class PerspectiveViewTransformTools : MonoBehaviour {
+
+  public Camera perspectiveCamera;
+  public GameObject quad;
+  public float relativePosition = 10;
+
+  public void OnDrawGizmosSelected()
+  {
+    if(perspectiveCamera != null)
+    {
+      Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativePosition));
+      Vector3 botRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 0, relativePosition));
+      Vector3 topLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 1, relativePosition));
+      Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativePosition));
+
+      //Vector3 screenTopLeft = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 0));
+      //Vector3 screenTopRight = perspectiveCamera.ViewportToScreenPoint(new Vector2(1, 0));
+      //Vector3 screenBotLeft = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 1));
+      //Vector3 screenBotRight = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 1));
+      //Debug.Log(screenTopLeft);
+      //Debug.Log(screenTopRight);
+      //Debug.Log(screenBotLeft);
+      //Debug.Log(screenBotRight);
+
+      Gizmos.color = Color.yellow;
+      Gizmos.DrawLine(topLeft, topRight);
+      Gizmos.DrawLine(topRight, botRight);
+      Gizmos.DrawLine(botRight, botLeft);
+      Gizmos.DrawLine(botLeft, topLeft);
+    }
+  }
+}

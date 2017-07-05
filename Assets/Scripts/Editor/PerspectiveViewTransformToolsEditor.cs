@@ -5,7 +5,7 @@ using UnityEngine;
 [CanEditMultipleObjects]
 public class PerspectiveViewTransformToolsEditor : Editor
 {
-  //private GameObject quad;
+  private PerspectiveViewTransformTools perspectiveViewTransformTools;
 
   //private Camera perspectiveCameraCached;
 
@@ -20,7 +20,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
   private void OnEnable()
   {
-    //quad = (GameObject)target; // Target is the object this script is attached to.
+    perspectiveViewTransformTools = (PerspectiveViewTransformTools)target; // Target is the object this script is attached to.
 
     // Note: look into where serializedObject is being instantiated
     perspectiveCameraProperty = serializedObject.FindProperty(perspectiveCameraPropertyName);
@@ -33,14 +33,25 @@ public class PerspectiveViewTransformToolsEditor : Editor
   {
     serializedObject.Update();
 
+    float minRelativePosition = 0.001f;
+    float maxRelativePosition = 10.0f;
+
+    if(perspectiveViewTransformTools.perspectiveCamera != null)
+    {
+      minRelativePosition = perspectiveViewTransformTools.perspectiveCamera.nearClipPlane;
+      maxRelativePosition = perspectiveViewTransformTools.perspectiveCamera.farClipPlane;
+    }
+
     EditorGUILayout.PropertyField(perspectiveCameraProperty);
-    EditorGUILayout.Slider(relativePositionProperty, 0, 10);
+    EditorGUILayout.Slider(
+      relativePositionProperty,
+      minRelativePosition, maxRelativePosition);
 
     EditorGUILayout.BeginHorizontal();
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Apply Transform", GUILayout.Width(applyButtonWidth)))
     {
-      Debug.Log("Bakakaboo");
+      
     }
     EditorGUILayout.EndHorizontal();
 

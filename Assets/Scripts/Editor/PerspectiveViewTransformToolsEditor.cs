@@ -10,9 +10,11 @@ public class PerspectiveViewTransformToolsEditor : Editor
   //private Camera perspectiveCameraCached;
 
   // Using Serialized Properties allow you take advantage of Unity's undo capabilities.
+  private SerializedProperty targetQuadProperty;
   private SerializedProperty perspectiveCameraProperty;
   private SerializedProperty relativePositionProperty;
 
+  private const string targetQuadPropertyName = "targetQuad";
   private const string perspectiveCameraPropertyName = "perspectiveCamera";
   private const string relativePositionPropertyName = "relativePosition";
 
@@ -23,10 +25,9 @@ public class PerspectiveViewTransformToolsEditor : Editor
     perspectiveViewTransformTools = (PerspectiveViewTransformTools)target; // Target is the object this script is attached to.
 
     // Note: look into where serializedObject is being instantiated
+    targetQuadProperty = serializedObject.FindProperty(targetQuadPropertyName);
     perspectiveCameraProperty = serializedObject.FindProperty(perspectiveCameraPropertyName);
     relativePositionProperty = serializedObject.FindProperty(relativePositionPropertyName);
-
-    Debug.Log(perspectiveCameraProperty);
   }
 
   public override void OnInspectorGUI()
@@ -42,6 +43,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
       maxRelativePosition = perspectiveViewTransformTools.perspectiveCamera.farClipPlane;
     }
 
+    EditorGUILayout.PropertyField(targetQuadProperty);
     EditorGUILayout.PropertyField(perspectiveCameraProperty);
     EditorGUILayout.Slider(
       relativePositionProperty,
@@ -51,7 +53,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Apply Transform", GUILayout.Width(applyButtonWidth)))
     {
-      
+      perspectiveViewTransformTools.ApplyTransform();
     }
     EditorGUILayout.EndHorizontal();
 

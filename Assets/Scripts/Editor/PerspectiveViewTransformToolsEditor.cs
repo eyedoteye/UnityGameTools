@@ -19,6 +19,10 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private const string relativePositionPropertyName = "relativePosition";
 
   private const float applyButtonWidth = 125f;
+  private const float minMaxTextFieldWidth = 70f;
+
+  private float minRelativePosition = -1;
+  private float maxRelativePosition = -1;
 
   private void OnEnable()
   {
@@ -34,27 +38,48 @@ public class PerspectiveViewTransformToolsEditor : Editor
   {
     serializedObject.Update();
 
-    float minRelativePosition = 0.001f;
-    float maxRelativePosition = 10.0f;
+    EditorGUILayout.PropertyField(targetQuadProperty);
+    EditorGUILayout.PropertyField(perspectiveCameraProperty);
+
+    float minRelativePositionLimit = 0.001f;
+    float maxRelativePositionLimit = 10.0f;
 
     if(perspectiveViewTransformTools.perspectiveCamera != null)
     {
-      minRelativePosition = perspectiveViewTransformTools.perspectiveCamera.nearClipPlane;
-      maxRelativePosition = perspectiveViewTransformTools.perspectiveCamera.farClipPlane;
+      minRelativePositionLimit = perspectiveViewTransformTools.perspectiveCamera.nearClipPlane;
+      maxRelativePositionLimit = perspectiveViewTransformTools.perspectiveCamera.farClipPlane;
+      if(minRelativePosition == -1)
+      {
+        minRelativePosition = minRelativePositionLimit;
+        maxRelativePosition = maxRelativePositionLimit;
+      }
     }
 
-    EditorGUILayout.PropertyField(targetQuadProperty);
-    EditorGUILayout.PropertyField(perspectiveCameraProperty);
     EditorGUILayout.Slider(
       relativePositionProperty,
       minRelativePosition, maxRelativePosition);
 
     EditorGUILayout.BeginHorizontal();
+
+    EditorGUILayout.PrefixLabel("↑ Limits");
+
+    minRelativePosition = EditorGUILayout.FloatField(minRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
+    minRelativePosition = minRelativePosition < minRelativePositionLimit ? minRelativePositionLimit : minRelativePosition;
+    maxRelativePosition = EditorGUILayout.FloatField(maxRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
+    maxRelativePosition = maxRelativePosition > maxRelativePositionLimit ? maxRelativePositionLimit : maxRelativePosition;
+
+    EditorGUILayout.MinMaxSlider(
+      ref minRelativePosition, ref maxRelativePosition,
+      minRelativePositionLimit, maxRelativePositionLimit);
+
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.BeginHorizontal();
+  
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Apply Transform", GUILayout.Width(applyButtonWidth)))
-    {
       ApplyTransforms();
-    }
+  
     EditorGUILayout.EndHorizontal();
 
     serializedObject.ApplyModifiedProperties();

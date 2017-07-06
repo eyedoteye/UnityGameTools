@@ -88,12 +88,16 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private void ApplyTransforms()
   {
     Vector3 newQuadPosition, newQuadScale;
-    perspectiveViewTransformTools.ComputeTransforms(out newQuadPosition, out newQuadScale);
+    Quaternion newQuadRotation;
+    perspectiveViewTransformTools.ComputeTransforms(out newQuadPosition, out newQuadScale, out newQuadRotation);
 
-    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Position Transform");
+    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Position");
     perspectiveViewTransformTools.gameObject.transform.position = newQuadPosition; 
 
-    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed LocalScale Transform");
+    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform LocalScale");
     perspectiveViewTransformTools.gameObject.transform.localScale = newQuadScale; 
+
+    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Rotation");
+    perspectiveViewTransformTools.gameObject.transform.rotation = newQuadRotation; 
   }
 }

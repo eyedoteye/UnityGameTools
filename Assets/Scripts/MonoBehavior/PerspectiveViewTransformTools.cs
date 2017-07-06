@@ -6,12 +6,16 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public GameObject targetQuad;
   public float relativePosition = 10;
 
-  public void ComputeTransforms(out Vector3 newQuadPosition, out Vector3 newQuadScale)
+  public void ComputeTransforms(out Vector3 newQuadPosition, out Vector3 newQuadScale, out Quaternion newQuadRotation)
   {
     newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativePosition));
 
     Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativePosition));
     Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativePosition));
+
+    Quaternion inverseRotation = Quaternion.Inverse(perspectiveCamera.transform.rotation); 
+    botLeft = inverseRotation * botLeft;
+    topRight = inverseRotation * topRight; 
 
     newQuadScale = (topRight - botLeft);
     if(newQuadScale.x == 0)
@@ -20,6 +24,11 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
       newQuadScale.y = 1;
     else if(newQuadScale.z == 0)
       newQuadScale.z = 1;
+
+    Vector3 vectorPointingToCameraFromQuad = perspectiveCamera.transform.position - newQuadPosition;
+    Vector3 newQuadRotationEuler = Quaternion.LookRotation(vectorPointingToCameraFromQuad).eulerAngles;
+    Vector3 perspectiveCameraRotationEuler = perspectiveCamera.transform.rotation.eulerAngles;
+    newQuadRotation = Quaternion.Euler(newQuadRotationEuler.x, newQuadRotationEuler.y, -perspectiveCameraRotationEuler.z);
   }
 
   public void OnDrawGizmosSelected()

@@ -6,23 +6,20 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public GameObject targetQuad;
   public float relativePosition = 10;
 
-  public void ApplyTransform()
+  public void ComputeTransforms(out Vector3 newQuadPosition, out Vector3 newQuadScale)
   {
-    Vector3 newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativePosition));
-    targetQuad.transform.position = newQuadPosition;
+    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativePosition));
 
     Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativePosition));
     Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativePosition));
 
-    Vector3 newQuadScale = (topRight - botLeft);
+    newQuadScale = (topRight - botLeft);
     if(newQuadScale.x == 0)
       newQuadScale.x = 1;
     else if(newQuadScale.y == 0)
       newQuadScale.y = 1;
     else if(newQuadScale.z == 0)
       newQuadScale.z = 1;
-
-    targetQuad.transform.localScale = newQuadScale;
   }
 
   public void OnDrawGizmosSelected()

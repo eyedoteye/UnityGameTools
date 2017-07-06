@@ -53,10 +53,22 @@ public class PerspectiveViewTransformToolsEditor : Editor
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Apply Transform", GUILayout.Width(applyButtonWidth)))
     {
-      perspectiveViewTransformTools.ApplyTransform();
+      ApplyTransforms();
     }
     EditorGUILayout.EndHorizontal();
 
     serializedObject.ApplyModifiedProperties();
+  }
+
+  private void ApplyTransforms()
+  {
+    Vector3 newQuadPosition, newQuadScale;
+    perspectiveViewTransformTools.ComputeTransforms(out newQuadPosition, out newQuadScale);
+
+    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Position Transform");
+    perspectiveViewTransformTools.gameObject.transform.position = newQuadPosition; 
+
+    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed LocalScale Transform");
+    perspectiveViewTransformTools.gameObject.transform.localScale = newQuadScale; 
   }
 }

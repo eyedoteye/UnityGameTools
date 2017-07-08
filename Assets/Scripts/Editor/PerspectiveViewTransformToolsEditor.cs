@@ -24,6 +24,17 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private float minRelativePosition = -1;
   private float maxRelativePosition = -1;
 
+  // Non Undo-able (Keeping these in the undo is just a waste of undo)
+  bool shouldApplyScale = true;
+  bool shouldApplyRotation = true;
+  bool shouldApplyPosition = true;
+
+  // Cache
+  private bool isCached = false;
+  Quaternion cachedNewQuadRotation;
+  Vector3 cachedNewQuadPosition;
+  Vector3 cachedNewQuadScale;
+
   private void OnEnable()
   {
     perspectiveViewTransformTools = (PerspectiveViewTransformTools)target; // Target is the object this script is attached to.
@@ -37,6 +48,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
   public override void OnInspectorGUI()
   {
     serializedObject.Update();
+
+    EditorGUI.BeginChangeCheck();
 
     EditorGUILayout.PropertyField(targetQuadProperty);
     EditorGUILayout.PropertyField(perspectiveCameraProperty);
@@ -74,30 +87,66 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
     EditorGUILayout.EndHorizontal();
 
+    if(EditorGUI.EndChangeCheck())
+      isCached = false;
+
+    shouldApplyPosition = EditorGUILayout.ToggleLeft("Position", shouldApplyPosition);
+    shouldApplyRotation = EditorGUILayout.ToggleLeft("Rotation", shouldApplyRotation);
+    shouldApplyScale = EditorGUILayout.ToggleLeft("Scale", shouldApplyScale);
+
     EditorGUILayout.BeginHorizontal();
   
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Apply Transform", GUILayout.Width(applyButtonWidth)))
-      ApplyTransforms();
+    {
+      if(shouldApplyPosition)
+        ApplyPosition();
+
+      if(shouldApplyScale)
+        ApplyScale();
+
+      if(shouldApplyRotation)
+        ApplyRotation();
+    }
   
     EditorGUILayout.EndHorizontal();
 
     serializedObject.ApplyModifiedProperties();
   }
 
-  private void ApplyTransforms()
+  private void ApplyScale()
   {
-    Vector3 newQuadPosition, newQuadScale;
-    Quaternion newQuadRotation;
-    perspectiveViewTransformTools.ComputeTransforms(out newQuadPosition, out newQuadScale, out newQuadRotation);
-
-    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Position");
-    perspectiveViewTransformTools.gameObject.transform.position = newQuadPosition; 
+    if(!isCached)
+    {
+      perspectiveViewTransformTools.ComputeTransforms(out cachedNewQuadPosition, out cachedNewQuadScale, out cachedNewQuadRotation);
+      isCached = true;
+    }
 
     Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform LocalScale");
-    perspectiveViewTransformTools.gameObject.transform.localScale = newQuadScale; 
+    perspectiveViewTransformTools.gameObject.transform.localScale = cachedNewQuadScale; 
+  }
+
+  private void ApplyPosition()
+  {
+    if(!isCached)
+    {
+      perspectiveViewTransformTools.ComputeTransforms(out cachedNewQuadPosition, out cachedNewQuadScale, out cachedNewQuadRotation);
+      isCached = true;
+    }
+
+    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Position");
+    perspectiveViewTransformTools.gameObject.transform.position = cachedNewQuadPosition; 
+  }
+
+  private void ApplyRotation()
+  {
+    if(!isCached)
+    {
+      perspectiveViewTransformTools.ComputeTransforms(out cachedNewQuadPosition, out cachedNewQuadScale, out cachedNewQuadRotation);
+      isCached = true;
+    }
 
     Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Rotation");
-    perspectiveViewTransformTools.gameObject.transform.rotation = newQuadRotation; 
+    perspectiveViewTransformTools.gameObject.transform.rotation = cachedNewQuadRotation; 
   }
 }

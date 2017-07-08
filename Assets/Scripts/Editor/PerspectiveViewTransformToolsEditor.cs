@@ -12,11 +12,11 @@ public class PerspectiveViewTransformToolsEditor : Editor
   // Using Serialized Properties allow you take advantage of Unity's undo capabilities.
   private SerializedProperty targetQuadProperty;
   private SerializedProperty perspectiveCameraProperty;
-  private SerializedProperty relativePositionProperty;
+  private SerializedProperty relativeDistanceProperty;
 
   private const string targetQuadPropertyName = "targetQuad";
   private const string perspectiveCameraPropertyName = "perspectiveCamera";
-  private const string relativePositionPropertyName = "relativePosition";
+  private const string relativeDistancePropertyName = "relativeDistance";
 
   private const float applyButtonWidth = 125f;
   private const float minMaxTextFieldWidth = 70f;
@@ -42,7 +42,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     // Note: look into where serializedObject is being instantiated
     targetQuadProperty = serializedObject.FindProperty(targetQuadPropertyName);
     perspectiveCameraProperty = serializedObject.FindProperty(perspectiveCameraPropertyName);
-    relativePositionProperty = serializedObject.FindProperty(relativePositionPropertyName);
+    relativeDistanceProperty = serializedObject.FindProperty(relativeDistancePropertyName);
   }
 
   public override void OnInspectorGUI()
@@ -69,7 +69,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     }
 
     EditorGUILayout.Slider(
-      relativePositionProperty,
+      relativeDistanceProperty,
       minRelativePosition, maxRelativePosition);
 
     EditorGUILayout.BeginHorizontal();

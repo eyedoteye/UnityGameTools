@@ -4,14 +4,14 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
 
   public Camera perspectiveCamera;
   public GameObject targetQuad;
-  public float relativePosition = 10;
+  public float relativeDistance = 10;
 
   public void ComputeTransforms(out Vector3 newQuadPosition, out Vector3 newQuadScale, out Quaternion newQuadRotation)
   {
-    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativePosition));
+    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativeDistance));
 
-    Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativePosition));
-    Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativePosition));
+    Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativeDistance));
+    Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
 
     Quaternion inverseRotation = Quaternion.Inverse(perspectiveCamera.transform.rotation); 
     botLeft = inverseRotation * botLeft;
@@ -35,10 +35,10 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   {
     if(perspectiveCamera != null)
     {
-      Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativePosition));
-      Vector3 botRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 0, relativePosition));
-      Vector3 topLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 1, relativePosition));
-      Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativePosition));
+      Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativeDistance));
+      Vector3 botRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 0, relativeDistance));
+      Vector3 topLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 1, relativeDistance));
+      Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
 
       //Vector3 screenTopLeft = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 0));
       //Vector3 screenTopRight = perspectiveCamera.ViewportToScreenPoint(new Vector2(1, 0));

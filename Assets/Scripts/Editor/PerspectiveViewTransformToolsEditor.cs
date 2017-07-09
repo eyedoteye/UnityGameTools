@@ -13,12 +13,17 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private SerializedProperty targetQuadProperty;
   private SerializedProperty perspectiveCameraProperty;
   private SerializedProperty relativeDistanceProperty;
+  private SerializedProperty viewportXProperty;
+  private SerializedProperty viewportYProperty;
 
   private const string targetQuadPropertyName = "targetQuad";
   private const string perspectiveCameraPropertyName = "perspectiveCamera";
   private const string relativeDistancePropertyName = "relativeDistance";
+  private const string viewportXPropertyName = "viewportX";
+  private const string viewportYPropertyName = "viewportY";
 
   private const float applyButtonWidth = 125f;
+  private const float resetButtonWidth = 50f;
   private const float minMaxTextFieldWidth = 70f;
 
   private float minRelativePosition = -1;
@@ -43,6 +48,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     targetQuadProperty = serializedObject.FindProperty(targetQuadPropertyName);
     perspectiveCameraProperty = serializedObject.FindProperty(perspectiveCameraPropertyName);
     relativeDistanceProperty = serializedObject.FindProperty(relativeDistancePropertyName);
+    viewportXProperty = serializedObject.FindProperty(viewportXPropertyName);
+    viewportYProperty = serializedObject.FindProperty(viewportYPropertyName);
   }
 
   public override void OnInspectorGUI()
@@ -85,6 +92,20 @@ public class PerspectiveViewTransformToolsEditor : Editor
       ref minRelativePosition, ref maxRelativePosition,
       minRelativePositionLimit, maxRelativePositionLimit);
 
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.LabelField("Viewport Position");
+
+    EditorGUILayout.BeginHorizontal();
+    EditorGUILayout.Slider(viewportXProperty, 0, 1, "↑ X");
+    if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
+      viewportXProperty.floatValue = 0.5f;
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.BeginHorizontal();
+    EditorGUILayout.Slider(viewportYProperty, 0, 1, "↑ Y");
+    if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
+      viewportYProperty.floatValue = 0.5f;
     EditorGUILayout.EndHorizontal();
 
     if(EditorGUI.EndChangeCheck())

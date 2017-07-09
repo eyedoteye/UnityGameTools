@@ -5,10 +5,12 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public Camera perspectiveCamera;
   public GameObject targetQuad;
   public float relativeDistance = 10;
+  public float viewportX = 0.5f;
+  public float viewportY = 0.5f;
 
   public void ComputeTransforms(out Vector3 newQuadPosition, out Vector3 newQuadScale, out Quaternion newQuadRotation)
   {
-    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativeDistance));
+    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(viewportX, viewportY, relativeDistance));
 
     Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativeDistance));
     Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
@@ -40,20 +42,15 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
       Vector3 topLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 1, relativeDistance));
       Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
 
-      //Vector3 screenTopLeft = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 0));
-      //Vector3 screenTopRight = perspectiveCamera.ViewportToScreenPoint(new Vector2(1, 0));
-      //Vector3 screenBotLeft = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 1));
-      //Vector3 screenBotRight = perspectiveCamera.ViewportToScreenPoint(new Vector2(0, 1));
-      //Debug.Log(screenTopLeft);
-      //Debug.Log(screenTopRight);
-      //Debug.Log(screenBotLeft);
-      //Debug.Log(screenBotRight);
-
       Gizmos.color = Color.yellow;
       Gizmos.DrawLine(topLeft, topRight);
       Gizmos.DrawLine(topRight, botRight);
       Gizmos.DrawLine(botRight, botLeft);
       Gizmos.DrawLine(botLeft, topLeft);
+
+      Vector3 viewportPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(viewportX, viewportY, relativeDistance));
+
+      Gizmos.DrawLine(perspectiveCamera.transform.position, viewportPosition);
     }
   }
 }

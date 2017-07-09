@@ -27,7 +27,8 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     else if(newQuadScale.z == 0)
       newQuadScale.z = 1;
 
-    Vector3 vectorPointingToCameraFromQuad = newQuadPosition - perspectiveCamera.transform.position;
+    Vector3 newQuadPositionBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativeDistance));
+    Vector3 vectorPointingToCameraFromQuad = perspectiveCamera.transform.position - newQuadPositionBase;
     Vector3 newQuadRotationEuler = Quaternion.LookRotation(vectorPointingToCameraFromQuad).eulerAngles;
     Vector3 perspectiveCameraRotationEuler = perspectiveCamera.transform.rotation.eulerAngles;
     newQuadRotation = Quaternion.Euler(newQuadRotationEuler.x, newQuadRotationEuler.y, perspectiveCameraRotationEuler.z);

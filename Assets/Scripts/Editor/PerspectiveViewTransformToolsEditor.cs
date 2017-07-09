@@ -143,8 +143,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
       isCached = true;
     }
 
-    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform LocalScale");
-    perspectiveViewTransformTools.gameObject.transform.localScale = cachedNewQuadScale; 
+    Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform LocalScale");
+    perspectiveViewTransformTools.targetQuad.transform.localScale = cachedNewQuadScale; 
   }
 
   private void ApplyPosition()
@@ -155,8 +155,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
       isCached = true;
     }
 
-    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Position");
-    perspectiveViewTransformTools.gameObject.transform.position = cachedNewQuadPosition; 
+    Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform Position");
+    perspectiveViewTransformTools.targetQuad.transform.position = cachedNewQuadPosition; 
   }
 
   private void ApplyRotation()
@@ -167,7 +167,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
       isCached = true;
     }
 
-    Undo.RecordObject(perspectiveViewTransformTools.gameObject.transform, "Changed Transform Rotation");
-    perspectiveViewTransformTools.gameObject.transform.rotation = cachedNewQuadRotation; 
+    Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform Rotation");
+    perspectiveViewTransformTools.targetQuad.transform.rotation = cachedNewQuadRotation; 
   }
 }

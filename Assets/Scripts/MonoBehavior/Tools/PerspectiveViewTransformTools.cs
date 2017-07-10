@@ -20,11 +20,11 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     topRight = inverseRotation * topRight; 
 
     newQuadScale = (topRight - botLeft);
-    if(newQuadScale.x == 0)
+    if(newQuadScale.x <= 0)
       newQuadScale.x = 1;
-    else if(newQuadScale.y == 0)
+    else if(newQuadScale.y <= 0)
       newQuadScale.y = 1;
-    else if(newQuadScale.z == 0)
+    else if(newQuadScale.z <= 0)
       newQuadScale.z = 1;
 
     Vector3 newQuadPositionBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, relativeDistance));

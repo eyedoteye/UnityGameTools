@@ -108,7 +108,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
       viewportYProperty.floatValue = 0.5f;
     EditorGUILayout.EndHorizontal();
 
-    if(EditorGUI.EndChangeCheck())
+    if(EditorGUI.EndChangeCheck() || perspectiveViewTransformTools.transform.hasChanged)
       isCached = false;
 
     shouldApplyPosition = EditorGUILayout.ToggleLeft("Position", shouldApplyPosition);
@@ -141,6 +141,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     {
       perspectiveViewTransformTools.ComputeTransforms(out cachedNewQuadPosition, out cachedNewQuadScale, out cachedNewQuadRotation);
       isCached = true;
+      perspectiveViewTransformTools.transform.hasChanged = false;
     }
 
     Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform LocalScale");
@@ -153,6 +154,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     {
       perspectiveViewTransformTools.ComputeTransforms(out cachedNewQuadPosition, out cachedNewQuadScale, out cachedNewQuadRotation);
       isCached = true;
+      perspectiveViewTransformTools.transform.hasChanged = false;
     }
 
     Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform Position");
@@ -165,6 +167,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     {
       perspectiveViewTransformTools.ComputeTransforms(out cachedNewQuadPosition, out cachedNewQuadScale, out cachedNewQuadRotation);
       isCached = true;
+      perspectiveViewTransformTools.transform.hasChanged = false;
     }
 
     Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform Rotation");

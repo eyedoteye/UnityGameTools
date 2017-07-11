@@ -15,12 +15,18 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private SerializedProperty relativeDistanceProperty;
   private SerializedProperty viewportXProperty;
   private SerializedProperty viewportYProperty;
+  private SerializedProperty relativeRotationXProperty;
+  private SerializedProperty relativeRotationYProperty;
+  private SerializedProperty relativeRotationZProperty;
 
   private const string targetQuadPropertyName = "targetQuad";
   private const string perspectiveCameraPropertyName = "perspectiveCamera";
   private const string relativeDistancePropertyName = "relativeDistance";
   private const string viewportXPropertyName = "viewportX";
   private const string viewportYPropertyName = "viewportY";
+  private const string relativeRotationXPropertyName = "relativeRotationX";
+  private const string relativeRotationYPropertyName = "relativeRotationY";
+  private const string relativeRotationZPropertyName = "relativeRotationZ";
 
   private const float applyButtonWidth = 125f;
   private const float resetButtonWidth = 50f;
@@ -50,6 +56,9 @@ public class PerspectiveViewTransformToolsEditor : Editor
     relativeDistanceProperty = serializedObject.FindProperty(relativeDistancePropertyName);
     viewportXProperty = serializedObject.FindProperty(viewportXPropertyName);
     viewportYProperty = serializedObject.FindProperty(viewportYPropertyName);
+    relativeRotationXProperty = serializedObject.FindProperty(relativeRotationXPropertyName);
+    relativeRotationYProperty = serializedObject.FindProperty(relativeRotationYPropertyName);
+    relativeRotationZProperty = serializedObject.FindProperty(relativeRotationZPropertyName);
   }
 
   public override void OnInspectorGUI()
@@ -108,6 +117,25 @@ public class PerspectiveViewTransformToolsEditor : Editor
       viewportYProperty.floatValue = 0.5f;
     EditorGUILayout.EndHorizontal();
 
+    Vector3 localRotation;
+    localRotation.x = relativeRotationXProperty.floatValue;
+    localRotation.y = relativeRotationYProperty.floatValue;
+    localRotation.z = relativeRotationZProperty.floatValue;
+
+    localRotation = EditorGUILayout.Vector3Field("Relative Rotation", localRotation);
+    if(localRotation.x != relativeRotationXProperty.floatValue ||
+       localRotation.y != relativeRotationYProperty.floatValue ||
+       localRotation.z != relativeRotationZProperty.floatValue)
+    {
+      relativeRotationXProperty.floatValue = localRotation.x;
+      relativeRotationYProperty.floatValue = localRotation.y;
+      relativeRotationZProperty.floatValue = localRotation.z;
+      perspectiveViewTransformTools.UpdateQuaternionWithEuler(
+        localRotation.x,
+        localRotation.y,
+        localRotation.z);
+    }
+    
     if(EditorGUI.EndChangeCheck() || perspectiveViewTransformTools.transform.hasChanged)
       isCached = false;
 

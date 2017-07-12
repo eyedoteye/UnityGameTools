@@ -125,7 +125,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     localRotation = EditorGUILayout.Vector3Field("Relative Rotation", localRotation);
     if(localRotation.x != relativeRotationXProperty.floatValue ||
        localRotation.y != relativeRotationYProperty.floatValue ||
-       localRotation.z != relativeRotationZProperty.floatValue)
+       localRotation.z != relativeRotationZProperty.floatValue ||
+       perspectiveViewTransformTools.transform.hasChanged)
     {
       relativeRotationXProperty.floatValue = localRotation.x;
       relativeRotationYProperty.floatValue = localRotation.y;

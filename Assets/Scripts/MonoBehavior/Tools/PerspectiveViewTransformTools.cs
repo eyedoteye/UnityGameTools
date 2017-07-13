@@ -48,11 +48,6 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     cachedTopLeftBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 1, relativeDistance));
     cachedTopRightBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
 
-    Vector3 midLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0f, 0.5f, relativeDistance));
-    Vector3 midRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1f, 0.5f, relativeDistance));
-    Vector3 topMid = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 1f, relativeDistance)); 
-    Vector3 botMid = perspectiveCamera.ViewportToWorldPoint(new Vector3(0.5f, 0f, relativeDistance));
-
     Vector3 relativeDistanceVector = perspectiveCamera.transform.forward * relativeDistance;
 
     cachedBotLeft = cachedBotLeftBase - relativeDistanceVector;

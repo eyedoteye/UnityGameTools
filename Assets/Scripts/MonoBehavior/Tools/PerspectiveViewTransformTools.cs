@@ -35,6 +35,9 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
 
   public void UpdateQuaternionWithEuler(float x, float y, float z)
   {
+    if(perspectiveCamera == null || targetQuad == null)
+      return;
+
     if(x != 0 || y != 0 || z != 0)
       cachedQuaternionIsNonZero = true;
     else

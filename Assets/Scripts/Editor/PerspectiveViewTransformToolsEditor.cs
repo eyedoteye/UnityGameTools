@@ -30,7 +30,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
   private const float applyButtonWidth = 125f;
   private const float resetButtonWidth = 50f;
-  private const float minMaxTextFieldWidth = 70f;
+  private const float minMaxTextFieldWidth = 50f;
 
   private float minRelativePosition = -1;
   private float maxRelativePosition = -1;
@@ -88,31 +88,36 @@ public class PerspectiveViewTransformToolsEditor : Editor
       relativeDistanceProperty,
       minRelativePosition, maxRelativePosition);
 
+
     EditorGUILayout.BeginHorizontal();
-
     EditorGUILayout.PrefixLabel("↑ Limits");
-
     minRelativePosition = EditorGUILayout.FloatField(minRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
     minRelativePosition = minRelativePosition < minRelativePositionLimit ? minRelativePositionLimit : minRelativePosition;
-    maxRelativePosition = EditorGUILayout.FloatField(maxRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
-    maxRelativePosition = maxRelativePosition > maxRelativePositionLimit ? maxRelativePositionLimit : maxRelativePosition;
-
     EditorGUILayout.MinMaxSlider(
       ref minRelativePosition, ref maxRelativePosition,
       minRelativePositionLimit, maxRelativePositionLimit);
-
+    maxRelativePosition = EditorGUILayout.FloatField(maxRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
+    maxRelativePosition = maxRelativePosition > maxRelativePositionLimit ? maxRelativePositionLimit : maxRelativePosition;
     EditorGUILayout.EndHorizontal();
 
     EditorGUILayout.LabelField("Viewport Position");
 
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.Slider(viewportXProperty, 0, 1, "↑ X");
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
       viewportXProperty.floatValue = 0.5f;
     EditorGUILayout.EndHorizontal();
 
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.Slider(viewportYProperty, 0, 1, "↑ Y");
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.BeginHorizontal();
+    GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
       viewportYProperty.floatValue = 0.5f;
     EditorGUILayout.EndHorizontal();

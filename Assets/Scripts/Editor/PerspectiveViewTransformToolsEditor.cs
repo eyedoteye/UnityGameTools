@@ -46,6 +46,12 @@ public class PerspectiveViewTransformToolsEditor : Editor
   Vector3 cachedNewQuadPosition;
   Vector3 cachedNewQuadScale;
 
+  // Screen Info
+  Vector2 screenDimensions;
+
+  // Alternative Input
+  Vector2 screenPosition;  
+
   private void OnEnable()
   {
     perspectiveViewTransformTools = (PerspectiveViewTransformTools)target; // Target is the object this script is attached to.
@@ -59,6 +65,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     relativeRotationXProperty = serializedObject.FindProperty(relativeRotationXPropertyName);
     relativeRotationYProperty = serializedObject.FindProperty(relativeRotationYPropertyName);
     relativeRotationZProperty = serializedObject.FindProperty(relativeRotationZPropertyName);
+
+    screenDimensions = perspectiveViewTransformTools.perspectiveCamera.ViewportToScreenPoint(new Vector3(1f, 1f, 0f));
   }
 
   public override void OnInspectorGUI()
@@ -88,7 +96,6 @@ public class PerspectiveViewTransformToolsEditor : Editor
       relativeDistanceProperty,
       minRelativePosition, maxRelativePosition);
 
-
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.PrefixLabel("↑ Limits");
     minRelativePosition = EditorGUILayout.FloatField(minRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
@@ -102,21 +109,62 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
     EditorGUILayout.LabelField("Viewport Position");
 
+    if(EditorGUI.EndChangeCheck())
+      isCached = false;
+
+    EditorGUI.BeginChangeCheck();
+
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.Slider(viewportXProperty, 0, 1, "↑ X");
     EditorGUILayout.EndHorizontal();
 
+    if(EditorGUI.EndChangeCheck())
+    {
+      isCached = false;
+      screenPosition.x = perspectiveViewTransformTools.perspectiveCamera.ViewportToScreenPoint(new Vector3(viewportXProperty.floatValue, 0f)).x; 
+    }
+    EditorGUI.BeginChangeCheck();
+
     EditorGUILayout.BeginHorizontal();
+    EditorGUILayout.PrefixLabel(" ↑ [ 0 , " + screenDimensions.x + " ]");
+    float oldScreenXPositionValue = screenPosition.x;
+    screenPosition.x = EditorGUILayout.FloatField(screenPosition.x);
+    if(screenPosition.x < 0)
+      screenPosition.x = 0;
+    if(screenPosition.x > screenDimensions.x)
+      screenPosition.x = screenDimensions.x;
+    if(screenPosition.x != oldScreenXPositionValue)
+      viewportXProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
       viewportXProperty.floatValue = 0.5f;
     EditorGUILayout.EndHorizontal();
 
+    if(EditorGUI.EndChangeCheck())
+      isCached = false;
+    EditorGUI.BeginChangeCheck();
+
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.Slider(viewportYProperty, 0, 1, "↑ Y");
     EditorGUILayout.EndHorizontal();
 
+    if(EditorGUI.EndChangeCheck())
+    {
+      isCached = false;
+      screenPosition.y = perspectiveViewTransformTools.perspectiveCamera.ViewportToScreenPoint(new Vector3(0f, viewportYProperty.floatValue)).y; 
+    }
+    EditorGUI.BeginChangeCheck();
+    
     EditorGUILayout.BeginHorizontal();
+    EditorGUILayout.PrefixLabel(" ↑ [ 0 , " + screenDimensions.y + " ]");
+    float oldScreenYPositionValue = screenPosition.y;
+    screenPosition.y = EditorGUILayout.FloatField(screenPosition.y);
+    if(screenPosition.y < 0)
+      screenPosition.y = 0;
+    if(screenPosition.y > screenDimensions.y)
+      screenPosition.y = screenDimensions.y;
+    if(screenPosition.y != oldScreenYPositionValue)
+      viewportYProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
       viewportYProperty.floatValue = 0.5f;

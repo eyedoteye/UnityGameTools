@@ -18,6 +18,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private SerializedProperty relativeRotationXProperty;
   private SerializedProperty relativeRotationYProperty;
   private SerializedProperty relativeRotationZProperty;
+  private SerializedProperty pixelGridSizeProperty;
+  private SerializedProperty gridEnabledProperty;
 
   private const string targetQuadPropertyName = "targetQuad";
   private const string perspectiveCameraPropertyName = "perspectiveCamera";
@@ -27,6 +29,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private const string relativeRotationXPropertyName = "relativeRotationX";
   private const string relativeRotationYPropertyName = "relativeRotationY";
   private const string relativeRotationZPropertyName = "relativeRotationZ";
+  private const string pixelGridSizePropertyName = "pixelGridSize";
+  private const string gridEnabledPropertyName = "gridEnabled";
 
   private const float applyButtonWidth = 125f;
   private const float resetButtonWidth = 50f;
@@ -50,7 +54,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
   Vector2 screenDimensions;
 
   // Alternative Input
-  Vector2 screenPosition;  
+  Vector2 screenPosition;
 
   private void OnEnable()
   {
@@ -65,6 +69,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     relativeRotationXProperty = serializedObject.FindProperty(relativeRotationXPropertyName);
     relativeRotationYProperty = serializedObject.FindProperty(relativeRotationYPropertyName);
     relativeRotationZProperty = serializedObject.FindProperty(relativeRotationZPropertyName);
+    pixelGridSizeProperty = serializedObject.FindProperty(pixelGridSizePropertyName);
+    gridEnabledProperty = serializedObject.FindProperty(gridEnabledPropertyName);
 
     UpdateScreenDimensions();
   }
@@ -104,7 +110,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
     Object changeCheck_prevValue = perspectiveCameraProperty.objectReferenceValue;
     EditorGUILayout.PropertyField(perspectiveCameraProperty);
-    if(perspectiveCameraProperty.objectReferenceValue !=  changeCheck_prevValue)
+    if(perspectiveCameraProperty.objectReferenceValue != changeCheck_prevValue)
     {
       serializedObject.ApplyModifiedProperties();
       UpdateScreenDimensions();
@@ -197,6 +203,10 @@ public class PerspectiveViewTransformToolsEditor : Editor
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
       viewportYProperty.floatValue = 0.5f;
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.BeginHorizontal();
+    EditorGUILayout.PropertyField(gridEnabledProperty);
     EditorGUILayout.EndHorizontal();
 
     Vector3 localRotation;

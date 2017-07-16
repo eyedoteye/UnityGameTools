@@ -11,6 +11,9 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public float relativeRotationY = 0f;
   public float relativeRotationZ = 0f;
 
+  public Vector2 pixelGridSize = new Vector2(16f, 16f);
+  public bool gridEnabled = false; 
+
   private Vector3 cachedBotLeftBase;
   private Vector3 cachedBotRightBase;
   private Vector3 cachedTopLeftBase;
@@ -22,7 +25,13 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   private Quaternion cachedQuaternion;
   private bool cachedQuaternionIsNonZero = false;
 
-  private Vector3 rotatePositionOverPoint(Vector3 position, Vector3 point, Quaternion rotation, Vector3 forward)
+  private Vector2 cachedScreenDimensions;
+
+  private Vector3 rotatePositionOverPoint(
+    Vector3 position,
+    Vector3 point,
+    Quaternion rotation,
+    Vector3 forward)
   {
     position = position - point;
     position = position - forward;
@@ -81,7 +90,10 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     cachedTopRight = cachedTopRight + relativeDistanceVector;
   }
 
-  public void ComputeTransforms(out Vector3 newQuadPosition, out Vector3 newQuadScale, out Quaternion newQuadRotation)
+  public void ComputeTransforms(
+    out Vector3 newQuadPosition,
+    out Vector3 newQuadScale,
+    out Quaternion newQuadRotation)
   {
     newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(viewportX, viewportY, relativeDistance));
 
@@ -129,6 +141,47 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
         Gizmos.DrawLine(cachedBotLeft, cachedTopLeft);
       }
 
+      if(gridEnabled)
+        DrawGrid();
+    }
+  }
+
+  private void DrawGrid()
+  {
+    int horizontalLineCount = (int)(cachedScreenDimensions.x / pixelGridSize.x);
+    int verticalLineCount = (int)(cachedScreenDimensions.y / pixelGridSize.y);
+
+    Gizmos.color = Color.yellow;
+    for(int currentHorizontalLineIndex = 0;
+        currentHorizontalLineIndex < horizontalLineCount;
+        ++currentHorizontalLineIndex)
+    {
+      Vector3 lineStart = perspectiveCamera.
+        ViewportToWorldPoint(new Vector3(1f / currentHorizontalLineIndex,
+                                         0f,
+                                         relativeDistance));
+
+      Vector3 lineEnd = perspectiveCamera.
+        ViewportToWorldPoint(new Vector3(1f / currentHorizontalLineIndex,
+                                         1f,
+                                         relativeDistance));
+      Gizmos.DrawLine(lineStart, lineEnd);
+    }
+
+    for(int currentVerticalLineIndex = 0;
+        currentVerticalLineIndex < verticalLineCount;
+        ++currentVerticalLineIndex)
+    {
+      Vector3 lineStart = perspectiveCamera.
+        ViewportToWorldPoint(new Vector3(1f / currentVerticalLineIndex,
+                                         0f,
+                                         relativeDistance));
+
+      Vector3 lineEnd = perspectiveCamera.
+        ViewportToWorldPoint(new Vector3(1f / currentVerticalLineIndex,
+                                         1f,
+                                         relativeDistance));
+      Gizmos.DrawLine(lineStart, lineEnd);
     }
   }
 }

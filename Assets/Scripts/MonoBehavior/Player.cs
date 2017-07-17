@@ -8,6 +8,7 @@ public class Player : MonoBehaviour {
 
   public float rotationSpeed;
   public float jumpVelocity;
+  public float gravity;
 
   private Vector2 leftJoystickInput;
   private bool jumpInput;
@@ -33,6 +34,10 @@ public class Player : MonoBehaviour {
 
   public void FixedUpdate()
   {
+    rigidbody.AddForce(
+      Vector3.down * gravity * Time.deltaTime,
+      ForceMode.VelocityChange);
+
     rigidbody.angularVelocity =
       transform.forward *
       (-leftJoystickInput.x * rotationSpeed);
@@ -50,59 +55,38 @@ public class Player : MonoBehaviour {
       rigidbody.angularVelocity = Vector3.zero;
     }
 
-    Vector3 bottommostPoint = transform.position +
-      Vector3.down * transform.localScale.y / 2f;
- 
-    if(angle % 90 != 0)
-    {
-      int quadrant = (int)(angle / 90) % 4;
-
-      int rightMod = 1;
-      int upMod = 1;
-      switch(quadrant)
-      {
-        case 0:
-        {
-          rightMod = -1;
-          upMod = -1;
-        } break;
-        case 1:
-        {
-          rightMod = -1;
-          upMod = 1;
-        } break;
-        case 2:
-        {
-          rightMod = 1;
-          upMod = 1;
-        } break;
-        case 3:
-        {
-          rightMod = 1;
-          upMod = -1;
-        } break;
-      } 
-
-      bottommostPoint = transform.position + 
-        Vector3.right * transform.localScale.x / 2f * rightMod +
-        Vector3.up * transform.localScale.y / 2f * upMod;
-      
-      Debug.Log(quadrant + " " + angle + " " + bottommostPoint);
-    }
-
     float hypot = Mathf.Sqrt(
       Mathf.Pow(transform.localScale.y / 2f, 2) +
-      Mathf.Pow(transform.localScale.x / 2f, 2)); 
+      Mathf.Pow(transform.localScale.x / 2f, 2));
 
-    onGround = Physics.Raycast(
+    RaycastHit hitInfo;
+    bool groundHit = Physics.Raycast(
       transform.position, Vector3.down,
-      hypot + 1f);
+      out hitInfo,
+      hypot * 2);
+
+    if(groundHit)
+    {
+      float nextDeltaTimeGuess = (Time.fixedDeltaTime + Time.deltaTime) / 2;
+      float yVelocityGuess = rigidbody.velocity.y * nextDeltaTimeGuess;
+      if(rigidbody.velocity.y < 0 &&
+        -hitInfo.distance > yVelocityGuess)
+      {
+        rigidbody.velocity = new Vector3(
+          rigidbody.velocity.x,
+          hitInfo.distance * nextDeltaTimeGuess,
+          rigidbody.velocity.z);
+
+      }
+      onGround = Physics.Raycast(
+        transform.position, Vector3.down,
+        hypot);
+    }
 
     Debug.DrawRay(
       transform.position,
       Vector3.down * (hypot + 1f),
       onGround ? Color.green : Color.white, 0, false);
-
 
     //float yVelocity = rigidbody.velocity.y; 
     //rigidbody.velocity = Quaternion.Inverse(transform.rotation) * transform.right *

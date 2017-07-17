@@ -137,13 +137,17 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.PrefixLabel("↑ Limits");
-    minRelativePosition = EditorGUILayout.FloatField(minRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
-    minRelativePosition = minRelativePosition < minRelativePositionLimit ? minRelativePositionLimit : minRelativePosition;
+    minRelativePosition = EditorGUILayout.FloatField(
+      minRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
+    minRelativePosition = minRelativePosition < minRelativePositionLimit ?
+      minRelativePositionLimit : minRelativePosition;
     EditorGUILayout.MinMaxSlider(
       ref minRelativePosition, ref maxRelativePosition,
       minRelativePositionLimit, maxRelativePositionLimit);
-    maxRelativePosition = EditorGUILayout.FloatField(maxRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
-    maxRelativePosition = maxRelativePosition > maxRelativePositionLimit ? maxRelativePositionLimit : maxRelativePosition;
+    maxRelativePosition = EditorGUILayout.FloatField(
+      maxRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
+    maxRelativePosition = maxRelativePosition > maxRelativePositionLimit ?
+      maxRelativePositionLimit : maxRelativePosition;
     EditorGUILayout.EndHorizontal();
 
     EditorGUILayout.LabelField("Viewport Position");
@@ -174,7 +178,10 @@ public class PerspectiveViewTransformToolsEditor : Editor
       viewportXProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
+    {
       viewportXProperty.floatValue = 0.5f;
+      isCached = false;
+    }
     EditorGUILayout.EndHorizontal();
 
     EndChangeCheck();
@@ -202,7 +209,10 @@ public class PerspectiveViewTransformToolsEditor : Editor
       viewportYProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
+    {
       viewportYProperty.floatValue = 0.5f;
+      isCached = false;
+    }
     EditorGUILayout.EndHorizontal();
 
     EditorGUILayout.BeginHorizontal();
@@ -218,7 +228,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(localRotation.x != relativeRotationXProperty.floatValue ||
        localRotation.y != relativeRotationYProperty.floatValue ||
        localRotation.z != relativeRotationZProperty.floatValue ||
-       perspectiveViewTransformTools.transform.hasChanged)
+       perspectiveViewTransformTools.transform.hasChanged ||
+       !isCached)
     {
       relativeRotationXProperty.floatValue = localRotation.x;
       relativeRotationYProperty.floatValue = localRotation.y;

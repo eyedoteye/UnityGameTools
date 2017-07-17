@@ -55,19 +55,27 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     Quaternion relativeRotation = Quaternion.Euler(x, y, z);
     cachedQuaternion = relativeRotation;
 
-    cachedBotLeftBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativeDistance));
-    cachedBotRightBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 0, relativeDistance));
-    cachedTopLeftBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 1, relativeDistance));
-    cachedTopRightBase = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
+    cachedBotLeftBase = perspectiveCamera.ViewportToWorldPoint(
+      new Vector3(0, 0, relativeDistance));
+    cachedBotRightBase = perspectiveCamera.ViewportToWorldPoint(
+      new Vector3(1, 0, relativeDistance));
+    cachedTopLeftBase = perspectiveCamera.ViewportToWorldPoint(
+      new Vector3(0, 1, relativeDistance));
+    cachedTopRightBase = perspectiveCamera.ViewportToWorldPoint(
+      new Vector3(1, 1, relativeDistance));
 
-    Vector3 relativeDistanceVector = perspectiveCamera.transform.forward * relativeDistance;
+    Vector3 relativeDistanceVector = perspectiveCamera.transform.forward *
+      relativeDistance;
+    Vector3 offsetVector = perspectiveCamera.ViewportToWorldPoint(
+      new Vector3(viewportX, viewportY, relativeDistance));
 
     cachedBotLeft = cachedBotLeftBase - relativeDistanceVector;
     cachedBotRight = cachedBotRightBase - relativeDistanceVector;
     cachedTopLeft = cachedTopLeftBase - relativeDistanceVector;
     cachedTopRight = cachedTopRightBase - relativeDistanceVector;
 
-    Quaternion inverseCameraRotation = Quaternion.Inverse(perspectiveCamera.transform.rotation);
+    Quaternion inverseCameraRotation = Quaternion.Inverse(
+      perspectiveCamera.transform.rotation);
 
     cachedBotLeft = inverseCameraRotation * cachedBotLeft;
     cachedBotRight = inverseCameraRotation * cachedBotRight;
@@ -84,10 +92,10 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     cachedTopLeft = perspectiveCamera.transform.rotation * cachedTopLeft;
     cachedTopRight = perspectiveCamera.transform.rotation * cachedTopRight;
 
-    cachedBotLeft = cachedBotLeft + relativeDistanceVector;
-    cachedBotRight = cachedBotRight + relativeDistanceVector;
-    cachedTopLeft = cachedTopLeft + relativeDistanceVector;
-    cachedTopRight = cachedTopRight + relativeDistanceVector;
+    cachedBotLeft = cachedBotLeft + offsetVector;
+    cachedBotRight = cachedBotRight + offsetVector;
+    cachedTopLeft = cachedTopLeft + offsetVector;
+    cachedTopRight = cachedTopRight + offsetVector;
   }
 
   public void ComputeTransforms(

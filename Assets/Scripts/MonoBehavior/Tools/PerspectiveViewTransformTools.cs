@@ -42,17 +42,29 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     return position;
   }
 
-  public void UpdateQuaternionWithEuler(float x, float y, float z)
+  public void UpdateScreenDimensions()
   {
-    if(perspectiveCamera == null || targetQuad == null)
+    if(perspectiveCamera == null)
       return;
 
-    if(x != 0 || y != 0 || z != 0)
+    cachedScreenDimensions = perspectiveCamera.ViewportToScreenPoint(
+      new Vector3(viewportX, viewportY));
+  }
+
+  public void UpdateGizmoCache()
+  {
+    if(perspectiveCamera == null)
+      return;
+
+    if(relativeRotationX != 0 || relativeRotationY != 0 || relativeRotationZ != 0)
       cachedQuaternionIsNonZero = true;
     else
       cachedQuaternionIsNonZero = false;
 
-    Quaternion relativeRotation = Quaternion.Euler(x, y, z);
+    Quaternion relativeRotation = Quaternion.Euler(
+      relativeRotationX,
+      relativeRotationY,
+      relativeRotationZ);
     cachedQuaternion = relativeRotation;
 
     cachedBotLeftBase = perspectiveCamera.ViewportToWorldPoint(
@@ -140,7 +152,9 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
 
       Gizmos.DrawLine(perspectiveCamera.transform.position, viewportPosition);
 
-      if(cachedQuaternionIsNonZero)
+      if(cachedQuaternionIsNonZero
+        || viewportX != 0.5f
+        || viewportY != 0.5f)
       {
         Gizmos.color = Color.white;
         Gizmos.DrawLine(cachedTopLeft, cachedTopRight);

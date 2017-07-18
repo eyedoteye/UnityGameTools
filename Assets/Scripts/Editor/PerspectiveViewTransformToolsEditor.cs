@@ -46,6 +46,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
   // Cache
   private bool isCached = false;
+  private bool shouldUpdateGizmoPositions = false;
   Quaternion cachedNewQuadRotation;
   Vector3 cachedNewQuadPosition;
   Vector3 cachedNewQuadScale;
@@ -80,6 +81,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(perspectiveViewTransformTools.perspectiveCamera != null)
       screenDimensions = perspectiveViewTransformTools.perspectiveCamera.
         ViewportToScreenPoint(new Vector3(1f, 1f, 0f));
+
+    perspectiveViewTransformTools.UpdateScreenDimensions();
   }
 
   private void UpdateScreenPositions()
@@ -102,15 +105,16 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
   public override void OnInspectorGUI()
   {
+    shouldUpdateGizmoPositions = false;
     serializedObject.Update();
 
     EditorGUI.BeginChangeCheck();
 
     EditorGUILayout.PropertyField(targetQuadProperty);
 
-    Object changeCheck_prevValue = perspectiveCameraProperty.objectReferenceValue;
     EditorGUILayout.PropertyField(perspectiveCameraProperty);
-    if(perspectiveCameraProperty.objectReferenceValue != changeCheck_prevValue)
+    if(perspectiveCameraProperty.objectReferenceValue
+      != perspectiveViewTransformTools.perspectiveCamera)
     {
       serializedObject.ApplyModifiedProperties();
       UpdateScreenDimensions();
@@ -134,6 +138,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     EditorGUILayout.Slider(
       relativeDistanceProperty,
       minRelativePosition, maxRelativePosition);
+    if(relativeDistanceProperty.floatValue != perspectiveViewTransformTools.relativeDistance)
+      shouldUpdateGizmoPositions = true;
 
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.PrefixLabel("↑ Limits");
@@ -154,13 +160,12 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
     EndChangeCheck();
     EditorGUI.BeginChangeCheck();
-
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.Slider(viewportXProperty, 0, 1, "↑ X");
     EditorGUILayout.EndHorizontal();
-
     if(EndChangeCheck())
     {
+      shouldUpdateGizmoPositions = true;
       UpdateScreenPositions();
       UpdateScreenDimensions();
     }
@@ -180,23 +185,23 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
       viewportXProperty.floatValue = 0.5f;
-      isCached = false;
+      shouldUpdateGizmoPositions = true;
     }
     EditorGUILayout.EndHorizontal();
 
     EndChangeCheck();
     EditorGUI.BeginChangeCheck();
-
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.Slider(viewportYProperty, 0, 1, "↑ Y");
     EditorGUILayout.EndHorizontal();
-
     if(EndChangeCheck())
     {
+      shouldUpdateGizmoPositions = true;
       UpdateScreenPositions();
       UpdateScreenDimensions();
     }
     EditorGUI.BeginChangeCheck();
+
     EditorGUILayout.BeginHorizontal();
     EditorGUILayout.PrefixLabel(" ↑ [ 0 , " + screenDimensions.y + " ]");
     float oldScreenYPositionValue = screenPosition.y;
@@ -211,7 +216,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
       viewportYProperty.floatValue = 0.5f;
-      isCached = false;
+      shouldUpdateGizmoPositions = true;
     }
     EditorGUILayout.EndHorizontal();
 
@@ -228,16 +233,11 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(localRotation.x != relativeRotationXProperty.floatValue ||
        localRotation.y != relativeRotationYProperty.floatValue ||
        localRotation.z != relativeRotationZProperty.floatValue ||
-       perspectiveViewTransformTools.transform.hasChanged ||
-       !isCached)
+       perspectiveViewTransformTools.transform.hasChanged)
     {
       relativeRotationXProperty.floatValue = localRotation.x;
       relativeRotationYProperty.floatValue = localRotation.y;
       relativeRotationZProperty.floatValue = localRotation.z;
-      perspectiveViewTransformTools.UpdateQuaternionWithEuler(
-        localRotation.x,
-        localRotation.y,
-        localRotation.z);
     }
     
     if(EditorGUI.EndChangeCheck() || perspectiveViewTransformTools.transform.hasChanged)
@@ -265,6 +265,11 @@ public class PerspectiveViewTransformToolsEditor : Editor
     EditorGUILayout.EndHorizontal();
 
     serializedObject.ApplyModifiedProperties();
+    
+    if(shouldUpdateGizmoPositions)
+    {
+      perspectiveViewTransformTools.UpdateGizmoCache();
+    }
   }
 
   private void ApplyScale()
@@ -276,7 +281,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
       perspectiveViewTransformTools.transform.hasChanged = false;
     }
 
-    Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform, "Changed Transform LocalScale");
+    Undo.RecordObject(perspectiveViewTransformTools.targetQuad.transform,
+      "Changed Transform LocalScale");
     perspectiveViewTransformTools.targetQuad.transform.localScale = cachedNewQuadScale; 
   }
 

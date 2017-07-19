@@ -11,7 +11,7 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public float relativeRotationY = 0f;
   public float relativeRotationZ = 0f;
   public Vector2 pixelGridSize = new Vector2(16f, 16f);
-  public bool gridEnabled = false; 
+  public bool gridEnabled = false;
 
   private Vector3 cachedBotLeftBase;
   private Vector3 cachedBotRightBase;
@@ -165,7 +165,36 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
         Gizmos.DrawLine(cachedBotRight, cachedBotLeft);
         Gizmos.DrawLine(cachedBotLeft, cachedTopLeft);
       }
+
+      Gizmos.color = Color.black;
+      DrawCross();
     }
+  }
+
+  private void DrawCross()
+  {
+    Vector2 screenMid = perspectiveCamera.ViewportToScreenPoint(new Vector2(
+      viewportX, viewportY));
+    Vector2 crossOffset = pixelGridSize / 2;
+    Vector3 crossTopLeft = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+      screenMid.x - crossOffset.x,
+      screenMid.y + crossOffset.y,
+      relativeDistance));
+    Vector3 crossBotRight = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+      screenMid.x + crossOffset.x,
+      screenMid.y - crossOffset.y,
+      relativeDistance));
+    Vector3 crossBotLeft = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+      screenMid.x - crossOffset.x,
+      screenMid.y - crossOffset.y,
+      relativeDistance));
+    Vector3 crossTopRight = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+      screenMid.x + crossOffset.x,
+      screenMid.y + crossOffset.y,
+      relativeDistance));
+    
+    Gizmos.DrawLine(crossTopLeft, crossBotRight);
+    Gizmos.DrawLine(crossBotLeft, crossTopRight);
   }
 
   private void DrawGrid()

@@ -56,6 +56,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
   // Alternative Input
   Vector2 screenPosition;
+  Vector2 gridPosition;
 
   private void OnEnable()
   {
@@ -88,9 +89,13 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private void UpdateScreenPositions()
   {
     if(perspectiveViewTransformTools.perspectiveCamera != null)
+    {
       screenPosition = perspectiveViewTransformTools.perspectiveCamera.
         ViewportToScreenPoint(new Vector3(viewportXProperty.floatValue,
                                            viewportYProperty.floatValue));
+      gridPosition.x = screenPosition.x / pixelGridSizeProperty.vector2Value.x;
+      gridPosition.y = screenPosition.y / pixelGridSizeProperty.vector2Value.y;
+    }
   }
 
   private bool EndChangeCheck()
@@ -182,7 +187,18 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(screenPosition.x != oldScreenXPositionValue)
       viewportXProperty.floatValue =
         perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
-    GUILayout.FlexibleSpace();
+    if(gridEnabledProperty.boolValue)
+    {
+      gridPosition.x = EditorGUILayout.FloatField(gridPosition.x);
+      if(gridPosition.x < 0)
+        gridPosition.x = 0;
+      float maxGridPosition = screenDimensions.x / pixelGridSizeProperty.vector2Value.x;
+      if(gridPosition.x > maxGridPosition)
+        gridPosition.x = maxGridPosition;
+      screenPosition.x = gridPosition.x * pixelGridSizeProperty.vector2Value.x;
+      viewportXProperty.floatValue =
+        perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
+    }
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
       viewportXProperty.floatValue = 0.5f;
@@ -214,7 +230,18 @@ public class PerspectiveViewTransformToolsEditor : Editor
       screenPosition.y = screenDimensions.y;
     if(screenPosition.y != oldScreenYPositionValue)
       viewportYProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
-    GUILayout.FlexibleSpace();
+    if(gridEnabledProperty.boolValue)
+    {
+      gridPosition.y = EditorGUILayout.FloatField(gridPosition.y);
+      if(gridPosition.y < 0)
+        gridPosition.y = 0;
+      float maxGridPosition = screenDimensions.y / pixelGridSizeProperty.vector2Value.y;
+      if(gridPosition.y > maxGridPosition)
+        gridPosition.y = maxGridPosition;
+      screenPosition.y = gridPosition.y * pixelGridSizeProperty.vector2Value.y;
+      viewportYProperty.floatValue =
+        perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
+    }
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
       viewportYProperty.floatValue = 0.5f;

@@ -48,7 +48,7 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
       return;
 
     cachedScreenDimensions = perspectiveCamera.ViewportToScreenPoint(
-      new Vector3(viewportX, viewportY));
+      new Vector3(1f, 1f));
   }
 
   public void UpdateGizmoCache()
@@ -152,6 +152,10 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
 
       Gizmos.DrawLine(perspectiveCamera.transform.position, viewportPosition);
 
+      Gizmos.color = Color.yellow;
+      if(gridEnabled)
+        DrawGrid();
+
       if(cachedQuaternionIsNonZero
         || viewportX != 0.5f
         || viewportY != 0.5f)
@@ -162,56 +166,51 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
         Gizmos.DrawLine(cachedBotRight, cachedBotLeft);
         Gizmos.DrawLine(cachedBotLeft, cachedTopLeft);
       }
-
-      if(gridEnabled)
-        DrawGrid();
     }
   }
 
   private void DrawGrid()
   {
+    UpdateScreenDimensions();
 
-    Vector3 quadDimensions = cachedTopRight - cachedBotLeft;
-    int horizontalLineCount = (int)(quadDimensions.x / pixelGridSize.x);
-    int verticalLineCount = (int)(quadDimensions.y / pixelGridSize.y);
-
-    Gizmos.color = Color.yellow;
-    for(float currentHorizontalLineIndex = 1;
-        currentHorizontalLineIndex < horizontalLineCount;
-        ++currentHorizontalLineIndex)
+    if((int)pixelGridSize.x > 0)
     {
-      float horizontalViewportPosition = currentHorizontalLineIndex / horizontalLineCount;
-      Vector3 lineStart = perspectiveCamera.
-        ViewportToWorldPoint(new Vector3(
-          horizontalViewportPosition,
-          0f,
-          relativeDistance));
+      float currentScreenXPosition = pixelGridSize.x;
 
-      Vector3 lineEnd = perspectiveCamera.
-        ViewportToWorldPoint(new Vector3(
-          horizontalViewportPosition,
-          1f,
+      while(currentScreenXPosition < cachedScreenDimensions.x)
+      {
+        Vector3 botPosition = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+          currentScreenXPosition, 0f, relativeDistance));
+        Vector3 topPosition = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+          currentScreenXPosition,
+          cachedScreenDimensions.y,
           relativeDistance));
-      Gizmos.DrawLine(lineStart, lineEnd);
+        Gizmos.DrawLine(
+          botPosition,
+          topPosition);
+
+        currentScreenXPosition += pixelGridSize.x;
+      }
     }
 
-    for(float currentVerticalLineIndex = 1;
-        currentVerticalLineIndex < verticalLineCount;
-        ++currentVerticalLineIndex)
+    if((int)pixelGridSize.y > 0)
     {
-      float verticalViewportPosition = currentVerticalLineIndex / verticalLineCount;
-      Vector3 lineStart = perspectiveCamera.
-        ViewportToWorldPoint(new Vector3(
-          0f,
-          verticalViewportPosition,
-          relativeDistance));
+      float currentScreenYPosition = pixelGridSize.y;
 
-      Vector3 lineEnd = perspectiveCamera.
-        ViewportToWorldPoint(new Vector3(
-          1f,
-          verticalViewportPosition,
+      while(currentScreenYPosition < cachedScreenDimensions.y)
+      {
+        Vector3 leftPosition = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+          0f, currentScreenYPosition, relativeDistance));
+        Vector3 rightPosition = perspectiveCamera.ScreenToWorldPoint(new Vector3(
+          cachedScreenDimensions.x,
+          currentScreenYPosition,
           relativeDistance));
-      Gizmos.DrawLine(lineStart, lineEnd);
+        Gizmos.DrawLine(
+          leftPosition,
+          rightPosition);
+
+        currentScreenYPosition += pixelGridSize.y;
+      }
     }
   }
 }

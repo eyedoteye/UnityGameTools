@@ -224,6 +224,18 @@ public class PerspectiveViewTransformToolsEditor : Editor
     EditorGUILayout.PropertyField(gridEnabledProperty);
     EditorGUILayout.EndHorizontal();
 
+    EditorGUILayout.BeginHorizontal();
+    EditorGUILayout.PropertyField(pixelGridSizeProperty);
+    if(pixelGridSizeProperty.vector2Value.x < 0)
+      pixelGridSizeProperty.vector2Value.Set(
+        0f,
+        pixelGridSizeProperty.vector2Value.y);
+    if(pixelGridSizeProperty.vector2Value.y < 0)
+      pixelGridSizeProperty.vector2Value.Set(
+        pixelGridSizeProperty.vector2Value.x,
+        0f);
+    EditorGUILayout.EndHorizontal();
+
     Vector3 localRotation;
     localRotation.x = relativeRotationXProperty.floatValue;
     localRotation.y = relativeRotationYProperty.floatValue;
@@ -267,9 +279,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     serializedObject.ApplyModifiedProperties();
     
     if(shouldUpdateGizmoPositions)
-    {
       perspectiveViewTransformTools.UpdateGizmoCache();
-    }
   }
 
   private void ApplyScale()

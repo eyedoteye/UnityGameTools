@@ -45,9 +45,9 @@ public class PerspectiveViewTransformToolsEditor : Editor
   // Cache
   private bool isCached = false;
   private bool shouldUpdateGizmoPositions = false;
-  Quaternion cachedNewQuadRotation;
-  Vector3 cachedNewQuadPosition;
-  Vector3 cachedNewQuadScale;
+  private Quaternion cachedNewQuadRotation;
+  private Vector3 cachedNewQuadPosition;
+  private Vector3 cachedNewQuadScale;
   private float cachedViewportXPosition;
   private float cachedViewportYPosition;
 

@@ -13,8 +13,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private SerializedProperty targetQuadProperty;
   private SerializedProperty perspectiveCameraProperty;
   private SerializedProperty relativeDistanceProperty;
-  private SerializedProperty viewportXProperty;
-  private SerializedProperty viewportYProperty;
+  private SerializedProperty viewportPositionProperty;
   private SerializedProperty relativeRotationXProperty;
   private SerializedProperty relativeRotationYProperty;
   private SerializedProperty relativeRotationZProperty;
@@ -24,8 +23,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
   private const string targetQuadPropertyName = "targetQuad";
   private const string perspectiveCameraPropertyName = "perspectiveCamera";
   private const string relativeDistancePropertyName = "relativeDistance";
-  private const string viewportXPropertyName = "viewportX";
-  private const string viewportYPropertyName = "viewportY";
+  private const string viewportPositionPropertyName = "viewportPosition";
   private const string relativeRotationXPropertyName = "relativeRotationX";
   private const string relativeRotationYPropertyName = "relativeRotationY";
   private const string relativeRotationZPropertyName = "relativeRotationZ";
@@ -50,6 +48,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
   Quaternion cachedNewQuadRotation;
   Vector3 cachedNewQuadPosition;
   Vector3 cachedNewQuadScale;
+  private float cachedViewportXPosition;
+  private float cachedViewportYPosition;
 
   // Screen Info
   Vector2 screenDimensions;
@@ -57,6 +57,19 @@ public class PerspectiveViewTransformToolsEditor : Editor
   // Alternative Input
   Vector2 screenPosition;
   Vector2 gridPosition;
+
+  private void UpdateVectorCache()
+  {
+    cachedViewportXPosition = viewportPositionProperty.vector2Value.x;
+    cachedViewportYPosition = viewportPositionProperty.vector2Value.y;
+  }
+
+  private void ApplyVectorCache()
+  {
+    viewportPositionProperty.vector2Value = new Vector2(
+      cachedViewportXPosition,
+      cachedViewportYPosition);
+  }
 
   private void OnEnable()
   {
@@ -66,8 +79,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     targetQuadProperty = serializedObject.FindProperty(targetQuadPropertyName);
     perspectiveCameraProperty = serializedObject.FindProperty(perspectiveCameraPropertyName);
     relativeDistanceProperty = serializedObject.FindProperty(relativeDistancePropertyName);
-    viewportXProperty = serializedObject.FindProperty(viewportXPropertyName);
-    viewportYProperty = serializedObject.FindProperty(viewportYPropertyName);
+    viewportPositionProperty = serializedObject.FindProperty(viewportPositionPropertyName);
     relativeRotationXProperty = serializedObject.FindProperty(relativeRotationXPropertyName);
     relativeRotationYProperty = serializedObject.FindProperty(relativeRotationYPropertyName);
     relativeRotationZProperty = serializedObject.FindProperty(relativeRotationZPropertyName);
@@ -91,8 +103,9 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(perspectiveViewTransformTools.perspectiveCamera != null)
     {
       screenPosition = perspectiveViewTransformTools.perspectiveCamera.
-        ViewportToScreenPoint(new Vector3(viewportXProperty.floatValue,
-                                           viewportYProperty.floatValue));
+        ViewportToScreenPoint(new Vector3(
+          cachedViewportXPosition,
+          cachedViewportYPosition));
       gridPosition.x = screenPosition.x / pixelGridSizeProperty.vector2Value.x;
       gridPosition.y = screenPosition.y / pixelGridSizeProperty.vector2Value.y;
     }
@@ -111,7 +124,9 @@ public class PerspectiveViewTransformToolsEditor : Editor
   public override void OnInspectorGUI()
   {
     shouldUpdateGizmoPositions = false;
+
     serializedObject.Update();
+    UpdateVectorCache();
 
     EditorGUI.BeginChangeCheck();
 
@@ -165,9 +180,12 @@ public class PerspectiveViewTransformToolsEditor : Editor
 
     EndChangeCheck();
     EditorGUI.BeginChangeCheck();
+
     EditorGUILayout.BeginHorizontal();
-    EditorGUILayout.Slider(viewportXProperty, 0, 1, "↑ X");
+    cachedViewportXPosition = EditorGUILayout.Slider(
+      "↑ X", cachedViewportXPosition, 0, 1);
     EditorGUILayout.EndHorizontal();
+
     if(EndChangeCheck())
     {
       shouldUpdateGizmoPositions = true;
@@ -185,7 +203,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(screenPosition.x > screenDimensions.x)
       screenPosition.x = screenDimensions.x;
     if(screenPosition.x != oldScreenXPositionValue)
-      viewportXProperty.floatValue =
+      cachedViewportXPosition =
         perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
     if(gridEnabledProperty.boolValue)
     {
@@ -196,12 +214,12 @@ public class PerspectiveViewTransformToolsEditor : Editor
       if(gridPosition.x > maxGridPosition)
         gridPosition.x = maxGridPosition;
       screenPosition.x = gridPosition.x * pixelGridSizeProperty.vector2Value.x;
-      viewportXProperty.floatValue =
+      cachedViewportXPosition =
         perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
     }
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
-      viewportXProperty.floatValue = 0.5f;
+      cachedViewportXPosition = 0.5f;
       shouldUpdateGizmoPositions = true;
       UpdateScreenPositions();
     }
@@ -210,7 +228,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     EndChangeCheck();
     EditorGUI.BeginChangeCheck();
     EditorGUILayout.BeginHorizontal();
-    EditorGUILayout.Slider(viewportYProperty, 0, 1, "↑ Y");
+    cachedViewportYPosition = EditorGUILayout.Slider(
+      "↑ Y", cachedViewportYPosition, 0, 1);
     EditorGUILayout.EndHorizontal();
     if(EndChangeCheck())
     {
@@ -229,7 +248,8 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(screenPosition.y > screenDimensions.y)
       screenPosition.y = screenDimensions.y;
     if(screenPosition.y != oldScreenYPositionValue)
-      viewportYProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
+      cachedViewportYPosition =
+        perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
     if(gridEnabledProperty.boolValue)
     {
       gridPosition.y = EditorGUILayout.FloatField(gridPosition.y);
@@ -239,12 +259,12 @@ public class PerspectiveViewTransformToolsEditor : Editor
       if(gridPosition.y > maxGridPosition)
         gridPosition.y = maxGridPosition;
       screenPosition.y = gridPosition.y * pixelGridSizeProperty.vector2Value.y;
-      viewportYProperty.floatValue =
+      cachedViewportYPosition =
         perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).y;
     }
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
-      viewportYProperty.floatValue = 0.5f;
+      cachedViewportYPosition = 0.5f;
       shouldUpdateGizmoPositions = true;
       UpdateScreenPositions();
     }
@@ -306,6 +326,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
   
     EditorGUILayout.EndHorizontal();
 
+    ApplyVectorCache();
     serializedObject.ApplyModifiedProperties();
     
     if(shouldUpdateGizmoPositions)

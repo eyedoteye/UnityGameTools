@@ -5,8 +5,7 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public Camera perspectiveCamera;
   public GameObject targetQuad;
   public float relativeDistance = 10;
-  public float viewportX = 0.5f;
-  public float viewportY = 0.5f;
+  public Vector2 viewportPosition = new Vector2(0.5f, 0.5f);
   public float relativeRotationX = 0f;
   public float relativeRotationY = 0f;
   public float relativeRotationZ = 0f;
@@ -78,7 +77,10 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     Vector3 relativeDistanceVector = perspectiveCamera.transform.forward *
       relativeDistance;
     Vector3 offsetVector = perspectiveCamera.ViewportToWorldPoint(
-      new Vector3(viewportX, viewportY, relativeDistance));
+      new Vector3(
+        viewportPosition.x,
+        viewportPosition.y,
+        relativeDistance));
 
     cachedBotLeft = cachedBotLeftBase - relativeDistanceVector;
     cachedBotRight = cachedBotRightBase - relativeDistanceVector;
@@ -114,7 +116,10 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
     out Vector3 newQuadScale,
     out Quaternion newQuadRotation)
   {
-    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(viewportX, viewportY, relativeDistance));
+    newQuadPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(
+      viewportPosition.x,
+      viewportPosition.y,
+      relativeDistance));
 
     Vector3 botLeft = perspectiveCamera.ViewportToWorldPoint(new Vector3(0, 0, relativeDistance));
     Vector3 topRight = perspectiveCamera.ViewportToWorldPoint(new Vector3(1, 1, relativeDistance));
@@ -147,17 +152,20 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
       Gizmos.DrawLine(cachedBotRightBase, cachedBotLeftBase);
       Gizmos.DrawLine(cachedBotLeftBase, cachedTopLeftBase);
 
-      Vector3 viewportPosition = perspectiveCamera.ViewportToWorldPoint(new Vector3(viewportX, viewportY, relativeDistance));
+      Vector3 viewMid = perspectiveCamera.ViewportToWorldPoint(new Vector3(
+        viewportPosition.x,
+        viewportPosition.y,
+        relativeDistance));
 
-      Gizmos.DrawLine(perspectiveCamera.transform.position, viewportPosition);
+      Gizmos.DrawLine(perspectiveCamera.transform.position, viewMid);
 
       Gizmos.color = Color.yellow;
       if(gridEnabled)
         DrawGrid();
 
       if(cachedQuaternionIsNonZero
-        || viewportX != 0.5f
-        || viewportY != 0.5f)
+        || viewportPosition.x != 0.5f
+        || viewportPosition.y != 0.5f)
       {
         Gizmos.color = Color.white;
         Gizmos.DrawLine(cachedTopLeft, cachedTopRight);
@@ -174,7 +182,7 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   private void DrawCross()
   {
     Vector2 screenMid = perspectiveCamera.ViewportToScreenPoint(new Vector2(
-      viewportX, viewportY));
+      viewportPosition.x, viewportPosition.y));
     Vector2 crossOffset = pixelGridSize / 2;
     Vector3 crossTopLeft = perspectiveCamera.ScreenToWorldPoint(new Vector3(
       screenMid.x - crossOffset.x,

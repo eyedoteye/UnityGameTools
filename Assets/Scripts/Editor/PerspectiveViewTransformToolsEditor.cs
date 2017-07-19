@@ -180,12 +180,14 @@ public class PerspectiveViewTransformToolsEditor : Editor
     if(screenPosition.x > screenDimensions.x)
       screenPosition.x = screenDimensions.x;
     if(screenPosition.x != oldScreenXPositionValue)
-      viewportXProperty.floatValue = perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
+      viewportXProperty.floatValue =
+        perspectiveViewTransformTools.perspectiveCamera.ScreenToViewportPoint(screenPosition).x;
     GUILayout.FlexibleSpace();
     if(GUILayout.Button("Reset", GUILayout.Width(resetButtonWidth)))
     {
       viewportXProperty.floatValue = 0.5f;
       shouldUpdateGizmoPositions = true;
+      UpdateScreenPositions();
     }
     EditorGUILayout.EndHorizontal();
 
@@ -217,6 +219,7 @@ public class PerspectiveViewTransformToolsEditor : Editor
     {
       viewportYProperty.floatValue = 0.5f;
       shouldUpdateGizmoPositions = true;
+      UpdateScreenPositions();
     }
     EditorGUILayout.EndHorizontal();
 

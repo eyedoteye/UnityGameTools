@@ -10,7 +10,6 @@ public class PerspectiveViewTransformTools : MonoBehaviour {
   public float relativeRotationX = 0f;
   public float relativeRotationY = 0f;
   public float relativeRotationZ = 0f;
-
   public Vector2 pixelGridSize = new Vector2(16f, 16f);
   public bool gridEnabled = false; 
 

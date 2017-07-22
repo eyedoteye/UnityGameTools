@@ -28,8 +28,8 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     }
   }
 
-  public Camera targetCamera;
   public GameObject targetObject;
+  public Camera targetCamera;
 
   public Vector2 screenPosition;
   public float relativeDistance = 10f;

@@ -29,10 +29,25 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
   private const float resetButtonWidth = 50f;
 
+  private bool isFirstAttach = true;
+  private void OnFirstAttach()
+  {
+    if(isFirstAttach)
+    {
+      if(cameraBased_QuadTransformTool.targetCamera == null)
+      {
+        Camera targetCamera = cameraBased_QuadTransformTool.GetComponentInParent<Camera>();
+        if(targetCamera != null)
+          cameraBased_QuadTransformTool.targetCamera = targetCamera;
+      }
+    }
+    isFirstAttach = false;
+  }
 
   private void OnEnable()
   {
     cameraBased_QuadTransformTool = (CameraBased_QuadTransformTool)target;
+    OnFirstAttach();
 
     targetObjectProperty = serializedObject.FindProperty(targetObjectPropertyName);
     targetCameraProperty = serializedObject.FindProperty(targetCameraPropertyName);

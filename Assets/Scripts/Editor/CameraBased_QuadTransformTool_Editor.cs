@@ -4,6 +4,33 @@ using UnityEngine;
 [CustomEditor(typeof(CameraBased_QuadTransformTool))]
 public class CameraBased_QuadTransformTool_Editor : Editor
 {
+  [CustomEditor(typeof(
+    CameraBased_QuadTransformTool.MeshVertex))]
+  public class MeshVertex_State_Editor : Editor
+  {
+    private SerializedProperty screenPositionProperty;
+    private SerializedProperty relativeDistanceProperty;
+
+    private const string screenPositionPropertyName = "screenPositionProperty";
+    private const string relativeDistancePropertyName = "relativeDistanceProperty";
+
+    private void OnEnable()
+    {
+      screenPositionProperty = serializedObject.FindProperty(screenPositionPropertyName);
+      relativeDistanceProperty = serializedObject.FindProperty(relativeDistancePropertyName);
+    }
+
+    public override void OnInspectorGUI()
+    {
+      serializedObject.Update();
+
+      EditorGUILayout.PropertyField(screenPositionProperty);
+      EditorGUILayout.PropertyField(relativeDistanceProperty);
+
+      serializedObject.ApplyModifiedProperties();
+    }
+  }
+
   private CameraBased_QuadTransformTool cameraBased_QuadTransformTool;
 
 
@@ -28,7 +55,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
 
   private const float resetButtonWidth = 50f;
-
+  
   private bool isFirstAttach = true;
   private void OnFirstAttach()
   {
@@ -67,6 +94,12 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   {
   }
 
+  public void Build_OptionsForVertex(
+    CameraBased_QuadTransformTool.MeshVertex_State MeshVertex_State)
+  {
+    
+  }
+
   public override void OnInspectorGUI()
   {
     serializedObject.Update();
@@ -74,6 +107,8 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
     EditorGUILayout.PropertyField(targetObjectProperty);
     EditorGUILayout.PropertyField(targetCameraProperty);
+
+
 
     //float minRelativePositionLimit = 0.001f;
     //float maxRelativePositionLimit = 10.0f;

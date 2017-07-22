@@ -2,27 +2,41 @@
 
 public class CameraBased_QuadTransformTool : MonoBehaviour {
 
-  private class MeshVertex_State
+  public class MeshVertex : MonoBehaviour
   {
     public int index;
 
-    // 3D Format
     public Vector3 vertex;
 
-    // RelativeToCamera Format
-    public Vector2 screenPosition;
-    public float relativeDistance;
+    public struct RelativeToCamera
+    {
+      public Vector2 screenPosition;
+      public float distance;
+    } RelativeToCamera relativeToCamera;
+
     public Camera targetCamera;
 
-    public bool Apply_RelativeToCamera_Format()
+    public bool Compute_RelativeToCamera()
+    {
+      if(targetCamera == null)
+        return false;
+
+      Vector3 screenSpace = targetCamera.WorldToScreenPoint(vertex);
+      relativeToCamera.screenPosition = new Vector2(screenSpace.x, screenSpace.y);
+      relativeToCamera.distance = screenSpace.z;
+
+      return true;
+    }
+
+    public bool Apply_RelativeToCamera()
     {
       if(targetCamera == null)
         return false;
 
       vertex = targetCamera.ScreenToWorldPoint(new Vector3(
-        screenPosition.x,
-        screenPosition.y,
-        relativeDistance));
+        relativeToCamera.screenPosition.x,
+        relativeToCamera.screenPosition.y,
+        relativeToCamera.distance));
 
       return true;
     }
@@ -38,14 +52,14 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
   public bool gridEnabled = true;
 
   private Vector2 viewportPosition = new Vector2(0.5f, 0.5f);
-  private MeshVertex_State meshVertex_States;
+  private MeshVertex[] meshVertices;
 
-  private Mesh cached_QuadMesh;
+  private Mesh cachedMesh;
   private Vector2 cached_ScreenDimensions;
-  private Vector3 cachedGizmo_QuadBotLeft;
-  private Vector3 cachedGizmo_QuadBotRight;
-  private Vector3 cachedGizmo_QuadTopLeft;
-  private Vector3 cachedGizmo_QuadTopRight;
+  private Vector3 cached_GizmoQuad_BotLeft;
+  private Vector3 cached_GizmoQuad_BotRight;
+  private Vector3 cached_GizmoQuad_TopLeft;
+  private Vector3 cached_GizmoQuad_TopRight;
 
   private Vector3 rotatePositionOverPoint(
     Vector3 position,
@@ -67,10 +81,36 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetObject == null)
       return false;
 
-    cached_QuadMesh = targetObject.GetComponent<MeshFilter>().mesh;
+    cachedMesh = targetObject.GetComponent<MeshFilter>().mesh;
 
-    if(cached_QuadMesh == null)
+    if(cachedMesh == null)
       return false;
+
+    return true;
+  }
+
+  public void UpdateAll_MeshVertices_Cameras()
+  {
+    for(int vertexIndex = 0; vertexIndex < meshVertices.Length; ++vertexIndex)
+    {
+      meshVertices[vertexIndex].targetCamera = targetCamera;
+    }
+  }
+
+  public bool Cache_Mesh_Into_MeshVertices()
+  {
+    if(cachedMesh == null)
+      return false;
+
+    Vector3[] vertices = cachedMesh.vertices;
+    for(int vertexIndex = 0; vertexIndex < cachedMesh.vertices.Length; ++vertexIndex)
+    {
+      MeshVertex meshVertex = meshVertices[vertexIndex];
+
+      meshVertex.index = vertexIndex;
+      meshVertex.vertex = vertices[vertexIndex];
+      meshVertex.Compute_RelativeToCamera();
+    }
 
     return true;
   }
@@ -89,13 +129,13 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetCamera == null)
       return;
 
-    cachedGizmo_QuadBotLeft = targetCamera.ViewportToWorldPoint(
+    cached_GizmoQuad_BotLeft = targetCamera.ViewportToWorldPoint(
       new Vector3(0, 0, relativeDistance));
-    cachedGizmo_QuadBotRight = targetCamera.ViewportToWorldPoint(
+    cached_GizmoQuad_BotRight = targetCamera.ViewportToWorldPoint(
       new Vector3(1, 0, relativeDistance));
-    cachedGizmo_QuadTopLeft = targetCamera.ViewportToWorldPoint(
+    cached_GizmoQuad_TopLeft = targetCamera.ViewportToWorldPoint(
       new Vector3(0, 1, relativeDistance));
-    cachedGizmo_QuadTopRight = targetCamera.ViewportToWorldPoint(
+    cached_GizmoQuad_TopRight = targetCamera.ViewportToWorldPoint(
       new Vector3(1, 1, relativeDistance));
   }
 
@@ -104,10 +144,10 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetCamera != null)
     {
       Gizmos.color = Color.yellow;
-      Gizmos.DrawLine(cachedGizmo_QuadTopLeft, cachedGizmo_QuadTopRight);
-      Gizmos.DrawLine(cachedGizmo_QuadTopRight, cachedGizmo_QuadBotRight);
-      Gizmos.DrawLine(cachedGizmo_QuadBotRight, cachedGizmo_QuadBotLeft);
-      Gizmos.DrawLine(cachedGizmo_QuadBotLeft, cachedGizmo_QuadTopLeft);
+      Gizmos.DrawLine(cached_GizmoQuad_TopLeft, cached_GizmoQuad_TopRight);
+      Gizmos.DrawLine(cached_GizmoQuad_TopRight, cached_GizmoQuad_BotRight);
+      Gizmos.DrawLine(cached_GizmoQuad_BotRight, cached_GizmoQuad_BotLeft);
+      Gizmos.DrawLine(cached_GizmoQuad_BotLeft, cached_GizmoQuad_TopLeft);
 
       Gizmos.color = Color.yellow;
       if(gridEnabled)

@@ -51,8 +51,8 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
   public Vector2 pixelGridSize = new Vector2(16f, 16f);
   public bool gridEnabled = true;
 
+  public MeshVertex[] meshVertices;
   private Vector2 viewportPosition = new Vector2(0.5f, 0.5f);
-  private MeshVertex[] meshVertices;
 
   private Mesh cachedMesh;
   private Vector2 cached_ScreenDimensions;
@@ -81,7 +81,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetObject == null)
       return false;
 
-    cachedMesh = targetObject.GetComponent<MeshFilter>().mesh;
+    cachedMesh = targetObject.GetComponent<MeshFilter>().sharedMesh;
 
     if(cachedMesh == null)
       return false;

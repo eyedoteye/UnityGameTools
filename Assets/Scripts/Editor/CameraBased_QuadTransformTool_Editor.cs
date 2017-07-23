@@ -6,7 +6,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 {
   [CustomEditor(typeof(
     CameraBased_QuadTransformTool.MeshVertex))]
-  public class MeshVertex_State_Editor : Editor
+  public class MeshVertex_Editor : Editor
   {
     private SerializedProperty screenPositionProperty;
     private SerializedProperty relativeDistanceProperty;
@@ -30,6 +30,8 @@ public class CameraBased_QuadTransformTool_Editor : Editor
       serializedObject.ApplyModifiedProperties();
     }
   }
+
+  private Editor[] meshVertex_Editors;
 
   private CameraBased_QuadTransformTool cameraBased_QuadTransformTool;
 
@@ -94,10 +96,50 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   {
   }
 
-  public void Build_OptionsForVertex(
-    CameraBased_QuadTransformTool.MeshVertex_State MeshVertex_State)
+  bool meshVertexEditorsAreBuilt = false;
+  public void Build_MeshVertex_Editors()
   {
-    
+    if(meshVertexEditorsAreBuilt)
+      return;
+
+    for(
+      int vertexIndex = 0;
+      vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
+      ++vertexIndex)
+    {
+      meshVertex_Editors[vertexIndex] = Editor.CreateEditor(
+        cameraBased_QuadTransformTool.meshVertices);
+    }
+    meshVertexEditorsAreBuilt = true;
+  }
+
+  public void Show_MeshVertex_Editors()
+  {
+    if(!meshVertexEditorsAreBuilt)
+      return;
+
+    for(
+      int vertexIndex = 0;
+      vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
+      ++vertexIndex)
+    {
+      meshVertex_Editors[vertexIndex].OnInspectorGUI();
+    }
+  }
+
+  public void Destroy_MeshVertex_Editors()
+  {
+    if(!meshVertexEditorsAreBuilt)
+      return;
+
+    for(
+      int vertexIndex = 0;
+      vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
+      ++vertexIndex)
+    {
+      DestroyImmediate(meshVertex_Editors[vertexIndex]);
+    }
+    meshVertexEditorsAreBuilt = false;
   }
 
   public override void OnInspectorGUI()
@@ -106,10 +148,19 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     UpdateVectorCache();
 
     EditorGUILayout.PropertyField(targetObjectProperty);
+    if(targetObjectProperty.objectReferenceValue != cameraBased_QuadTransformTool.targetObject)
+    {
+      Destroy_MeshVertex_Editors();
+
+      serializedObject.ApplyModifiedProperties();
+      cameraBased_QuadTransformTool.GetMesh();
+      cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
+
+      Build_MeshVertex_Editors();
+    }
     EditorGUILayout.PropertyField(targetCameraProperty);
 
-
-
+    Show_MeshVertex_Editors();
     //float minRelativePositionLimit = 0.001f;
     //float maxRelativePositionLimit = 10.0f;
 

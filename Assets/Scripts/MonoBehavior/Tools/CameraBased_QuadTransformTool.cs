@@ -4,10 +4,13 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
   public class MeshVertex
   {
+    public GameObject owner;
     public int index;
 
+    // Note: Stored In Local Coordinates
     public Vector3 vertex;
 
+    // Note: Strored In Screen Coordinates
     public struct RelativeToCamera
     {
       public Vector2 screenPosition;
@@ -21,7 +24,8 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
       if(targetCamera == null)
         return false;
 
-      Vector3 screenSpace = targetCamera.WorldToScreenPoint(vertex);
+      Vector3 worldSpace = owner.transform.localToWorldMatrix.MultiplyPoint3x4(vertex);
+      Vector3 screenSpace = targetCamera.WorldToScreenPoint(worldSpace);
       relativeToCamera.screenPosition = new Vector2(screenSpace.x, screenSpace.y);
       relativeToCamera.distance = screenSpace.z;
 
@@ -33,10 +37,13 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
       if(targetCamera == null)
         return false;
 
-      vertex = targetCamera.ScreenToWorldPoint(new Vector3(
+      Vector3 worldSpace = targetCamera.ScreenToWorldPoint(new Vector3(
         relativeToCamera.screenPosition.x,
         relativeToCamera.screenPosition.y,
         relativeToCamera.distance));
+
+      vertex =
+        owner.transform.worldToLocalMatrix.MultiplyPoint3x4(worldSpace);
 
       return true;
     }
@@ -113,8 +120,10 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     {
       MeshVertex meshVertex = new MeshVertex();
 
+      meshVertex.owner = targetObject;
       meshVertex.index = vertexIndex;
       meshVertex.vertex = vertices[vertexIndex];
+      meshVertex.targetCamera = targetCamera;
       meshVertex.Compute_RelativeToCamera();
 
       meshVertices[vertexIndex] = meshVertex;

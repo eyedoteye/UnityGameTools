@@ -4,35 +4,6 @@ using UnityEngine;
 [CustomEditor(typeof(CameraBased_QuadTransformTool))]
 public class CameraBased_QuadTransformTool_Editor : Editor
 {
-  [CustomEditor(typeof(
-    CameraBased_QuadTransformTool.MeshVertex))]
-  public class MeshVertex_Editor : Editor
-  {
-    private SerializedProperty screenPositionProperty;
-    private SerializedProperty relativeDistanceProperty;
-
-    private const string screenPositionPropertyName = "screenPositionProperty";
-    private const string relativeDistancePropertyName = "relativeDistanceProperty";
-
-    private void OnEnable()
-    {
-      screenPositionProperty = serializedObject.FindProperty(screenPositionPropertyName);
-      relativeDistanceProperty = serializedObject.FindProperty(relativeDistancePropertyName);
-    }
-
-    public override void OnInspectorGUI()
-    {
-      serializedObject.Update();
-
-      EditorGUILayout.PropertyField(screenPositionProperty);
-      EditorGUILayout.PropertyField(relativeDistanceProperty);
-
-      serializedObject.ApplyModifiedProperties();
-    }
-  }
-
-  private Editor[] meshVertex_Editors;
-
   private CameraBased_QuadTransformTool cameraBased_QuadTransformTool;
 
 
@@ -96,50 +67,32 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   {
   }
 
-  bool meshVertexEditorsAreBuilt = false;
-  public void Build_MeshVertex_Editors()
+  public void Build_MeshVertices_Editors()
   {
-    if(meshVertexEditorsAreBuilt)
+    if(cameraBased_QuadTransformTool.cachedMesh == null)
       return;
-
+    
     for(
       int vertexIndex = 0;
       vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
       ++vertexIndex)
     {
-      meshVertex_Editors[vertexIndex] = Editor.CreateEditor(
-        cameraBased_QuadTransformTool.meshVertices);
+      CameraBased_QuadTransformTool.MeshVertex.RelativeToCamera relativeToCamera =
+        cameraBased_QuadTransformTool.meshVertices[vertexIndex].relativeToCamera;
+
+      EditorGUILayout.LabelField("Vertex " + vertexIndex);
+
+      relativeToCamera.screenPosition = EditorGUILayout.Vector2Field(
+        " ↑ Grid Position",
+        relativeToCamera.screenPosition);
+
+      relativeToCamera.distance = EditorGUILayout.FloatField(
+        " ↑ Distance From Camera",
+        relativeToCamera.distance);
+
+      cameraBased_QuadTransformTool.meshVertices[vertexIndex].relativeToCamera =
+        relativeToCamera;
     }
-    meshVertexEditorsAreBuilt = true;
-  }
-
-  public void Show_MeshVertex_Editors()
-  {
-    if(!meshVertexEditorsAreBuilt)
-      return;
-
-    for(
-      int vertexIndex = 0;
-      vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
-      ++vertexIndex)
-    {
-      meshVertex_Editors[vertexIndex].OnInspectorGUI();
-    }
-  }
-
-  public void Destroy_MeshVertex_Editors()
-  {
-    if(!meshVertexEditorsAreBuilt)
-      return;
-
-    for(
-      int vertexIndex = 0;
-      vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
-      ++vertexIndex)
-    {
-      DestroyImmediate(meshVertex_Editors[vertexIndex]);
-    }
-    meshVertexEditorsAreBuilt = false;
   }
 
   public override void OnInspectorGUI()
@@ -150,51 +103,19 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     EditorGUILayout.PropertyField(targetObjectProperty);
     if(targetObjectProperty.objectReferenceValue != cameraBased_QuadTransformTool.targetObject)
     {
-      Destroy_MeshVertex_Editors();
-
       serializedObject.ApplyModifiedProperties();
-      cameraBased_QuadTransformTool.GetMesh();
-      cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
 
-      Build_MeshVertex_Editors();
+      if(cameraBased_QuadTransformTool.targetObject == null)
+        cameraBased_QuadTransformTool.ClearMesh();
+      else
+      {
+        cameraBased_QuadTransformTool.GetMesh();
+        cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
+      }
     }
     EditorGUILayout.PropertyField(targetCameraProperty);
 
-    Show_MeshVertex_Editors();
-    //float minRelativePositionLimit = 0.001f;
-    //float maxRelativePositionLimit = 10.0f;
-
-    //if(cameraBased_QuadTransformTool.targetCamera != null)
-    //{
-    //  minRelativePositionLimit = cameraBased_QuadTransformTool.targetCamera.nearClipPlane;
-    //  maxRelativePositionLimit = cameraBased_QuadTransformTool.targetCamera.farClipPlane;
-    //  if(minRelativePosition == -1)
-    //  {
-    //    minRelativePosition = minRelativePositionLimit;
-    //    maxRelativePosition = maxRelativePositionLimit;
-    //  }
-    //}
-
-    //EditorGUILayout.Slider(
-    //  relativeDistanceProperty,
-    //  minRelativePosition, maxRelativePosition);
-    //if(relativeDistanceProperty.floatValue != cameraBased_QuadTransformTool.relativeDistance)
-    //  shouldUpdateGizmoPositions = true;
-
-    //EditorGUILayout.BeginHorizontal();
-    //EditorGUILayout.PrefixLabel("↑ Limits");
-    //minRelativePosition = EditorGUILayout.FloatField(
-    //  minRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
-    //minRelativePosition = minRelativePosition < minRelativePositionLimit ?
-    //  minRelativePositionLimit : minRelativePosition;
-    //EditorGUILayout.MinMaxSlider(
-    //  ref minRelativePosition, ref maxRelativePosition,
-    //  minRelativePositionLimit, maxRelativePositionLimit);
-    //maxRelativePosition = EditorGUILayout.FloatField(
-    //  maxRelativePosition, GUILayout.Width(minMaxTextFieldWidth));
-    //maxRelativePosition = maxRelativePosition > maxRelativePositionLimit ?
-    //  maxRelativePositionLimit : maxRelativePosition;
-    //EditorGUILayout.EndHorizontal();
+    Build_MeshVertices_Editors();
 
     ApplyVectorCache();
     serializedObject.ApplyModifiedProperties();

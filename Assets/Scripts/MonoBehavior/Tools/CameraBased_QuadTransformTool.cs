@@ -2,7 +2,7 @@
 
 public class CameraBased_QuadTransformTool : MonoBehaviour {
 
-  public class MeshVertex : MonoBehaviour
+  public class MeshVertex
   {
     public int index;
 
@@ -12,7 +12,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     {
       public Vector2 screenPosition;
       public float distance;
-    } RelativeToCamera relativeToCamera;
+    } public RelativeToCamera relativeToCamera;
 
     public Camera targetCamera;
 
@@ -52,9 +52,9 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
   public bool gridEnabled = true;
 
   public MeshVertex[] meshVertices;
+  public Mesh cachedMesh;
   private Vector2 viewportPosition = new Vector2(0.5f, 0.5f);
 
-  private Mesh cachedMesh;
   private Vector2 cached_ScreenDimensions;
   private Vector3 cached_GizmoQuad_BotLeft;
   private Vector3 cached_GizmoQuad_BotRight;
@@ -74,6 +74,11 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     position = position + point;
 
     return position;
+  }
+
+  public void ClearMesh()
+  {
+    cachedMesh = null;
   }
 
   public bool GetMesh()
@@ -103,13 +108,16 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
       return false;
 
     Vector3[] vertices = cachedMesh.vertices;
+    meshVertices = new MeshVertex[vertices.Length];
     for(int vertexIndex = 0; vertexIndex < cachedMesh.vertices.Length; ++vertexIndex)
     {
-      MeshVertex meshVertex = meshVertices[vertexIndex];
+      MeshVertex meshVertex = new MeshVertex();
 
       meshVertex.index = vertexIndex;
       meshVertex.vertex = vertices[vertexIndex];
       meshVertex.Compute_RelativeToCamera();
+
+      meshVertices[vertexIndex] = meshVertex;
     }
 
     return true;

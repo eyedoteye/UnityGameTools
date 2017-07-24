@@ -71,6 +71,8 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   {
     if(cameraBased_QuadTransformTool.targetMesh == null)
       return;
+    if(cameraBased_QuadTransformTool.meshVertices == null)
+      return;
     
     for(
       int vertexIndex = 0;
@@ -79,6 +81,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     {
       CameraBased_QuadTransformTool.MeshVertex meshVertex =
         cameraBased_QuadTransformTool.meshVertices[vertexIndex];
+      meshVertex.Compute_RelativeToCamera();
       CameraBased_QuadTransformTool.MeshVertex.RelativeToCamera relativeToCamera =
         meshVertex.relativeToCamera;
 
@@ -112,6 +115,14 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   {
     serializedObject.Update();
     UpdateVectorCache();
+
+    if(
+      cameraBased_QuadTransformTool.targetMesh != null
+      && !cameraBased_QuadTransformTool.IsMeshInstantiated())
+    {
+      cameraBased_QuadTransformTool.GetMesh();
+      cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
+    }
 
     EditorGUILayout.PropertyField(targetObjectProperty);
     if(targetObjectProperty.objectReferenceValue != cameraBased_QuadTransformTool.targetObject)

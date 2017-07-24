@@ -5,6 +5,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
   public class MeshVertex
   {
     public GameObject targetObject;
+    public Mesh targetMesh;
     public int vertexIndex;
 
     // Note: Stored In Local Coordinates
@@ -46,6 +47,16 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
         targetObject.transform.worldToLocalMatrix.MultiplyPoint3x4(worldSpace);
 
       return true;
+    }
+
+    public bool Recache()
+    {
+      if(targetObject == null)
+        return false;
+
+      vertex = targetMesh.vertices[vertexIndex];
+
+      return Compute_RelativeToCamera();
     }
   }
 
@@ -90,7 +101,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
   public bool IsMeshInstantiated()
   {
-    if(targetObject == null)
+    if(targetMesh == null)
       return false;
 
     Mesh possible_targetMesh = targetObject.GetComponent<MeshFilter>().sharedMesh;
@@ -143,6 +154,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
       MeshVertex meshVertex = new MeshVertex();
 
       meshVertex.targetObject = targetObject;
+      meshVertex.targetMesh = targetMesh;
       meshVertex.vertexIndex = vertexIndex;
       meshVertex.vertex = vertices[vertexIndex];
       meshVertex.targetCamera = targetCamera;

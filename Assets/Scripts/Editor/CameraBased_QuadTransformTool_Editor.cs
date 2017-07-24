@@ -69,7 +69,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
   public void Build_MeshVertices_Editors()
   {
-    if(cameraBased_QuadTransformTool.cachedMesh == null)
+    if(cameraBased_QuadTransformTool.targetMesh == null)
       return;
     
     for(
@@ -77,8 +77,10 @@ public class CameraBased_QuadTransformTool_Editor : Editor
       vertexIndex < cameraBased_QuadTransformTool.meshVertices.Length;
       ++vertexIndex)
     {
+      CameraBased_QuadTransformTool.MeshVertex meshVertex =
+        cameraBased_QuadTransformTool.meshVertices[vertexIndex];
       CameraBased_QuadTransformTool.MeshVertex.RelativeToCamera relativeToCamera =
-        cameraBased_QuadTransformTool.meshVertices[vertexIndex].relativeToCamera;
+        meshVertex.relativeToCamera;
 
       EditorGUILayout.LabelField("Vertex " + vertexIndex);
 
@@ -90,8 +92,19 @@ public class CameraBased_QuadTransformTool_Editor : Editor
         " ↑ Distance From Camera",
         relativeToCamera.distance);
 
-      cameraBased_QuadTransformTool.meshVertices[vertexIndex].relativeToCamera =
-        relativeToCamera;
+
+      CameraBased_QuadTransformTool.MeshVertex.RelativeToCamera oldRelativeToCamera =
+        meshVertex.relativeToCamera;
+
+      if(
+        oldRelativeToCamera.screenPosition != relativeToCamera.screenPosition ||
+        oldRelativeToCamera.distance != relativeToCamera.distance)
+      {
+        cameraBased_QuadTransformTool.meshVertices[vertexIndex].relativeToCamera =
+          relativeToCamera;
+
+        meshVertex.Apply_RelativeToCamera();
+      }
     }
   }
 
@@ -119,5 +132,13 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
     ApplyVectorCache();
     serializedObject.ApplyModifiedProperties();
+    
+    if(cameraBased_QuadTransformTool.targetMesh != null)
+    {
+      Undo.RecordObject(
+        cameraBased_QuadTransformTool.targetMesh,
+        "Transform Mesh Vertex");
+      cameraBased_QuadTransformTool.Apply_MeshVertices_To_TargetMesh();
+    }
   }
 }

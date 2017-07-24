@@ -4,8 +4,8 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
   public class MeshVertex
   {
-    public GameObject owner;
-    public int index;
+    public GameObject targetObject;
+    public int vertexIndex;
 
     // Note: Stored In Local Coordinates
     public Vector3 vertex;
@@ -24,7 +24,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
       if(targetCamera == null)
         return false;
 
-      Vector3 worldSpace = owner.transform.localToWorldMatrix.MultiplyPoint3x4(vertex);
+      Vector3 worldSpace = targetObject.transform.localToWorldMatrix.MultiplyPoint3x4(vertex);
       Vector3 screenSpace = targetCamera.WorldToScreenPoint(worldSpace);
       relativeToCamera.screenPosition = new Vector2(screenSpace.x, screenSpace.y);
       relativeToCamera.distance = screenSpace.z;
@@ -43,7 +43,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
         relativeToCamera.distance));
 
       vertex =
-        owner.transform.worldToLocalMatrix.MultiplyPoint3x4(worldSpace);
+        targetObject.transform.worldToLocalMatrix.MultiplyPoint3x4(worldSpace);
 
       return true;
     }
@@ -59,7 +59,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
   public bool gridEnabled = true;
 
   public MeshVertex[] meshVertices;
-  public Mesh cachedMesh;
+  public Mesh targetMesh;
   private Vector2 viewportPosition = new Vector2(0.5f, 0.5f);
 
   private Vector2 cached_ScreenDimensions;
@@ -85,7 +85,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
   public void ClearMesh()
   {
-    cachedMesh = null;
+    targetMesh = null;
   }
 
   public bool GetMesh()
@@ -93,35 +93,37 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetObject == null)
       return false;
 
-    cachedMesh = targetObject.GetComponent<MeshFilter>().sharedMesh;
+    targetMesh = targetObject.GetComponent<MeshFilter>().mesh;
 
-    if(cachedMesh == null)
+    if(targetMesh == null)
       return false;
 
     return true;
   }
 
-  public void UpdateAll_MeshVertices_Cameras()
+  public void Apply_MeshVertices_To_TargetMesh()
   {
+    Vector3[] vertices = new Vector3[meshVertices.Length];
     for(int vertexIndex = 0; vertexIndex < meshVertices.Length; ++vertexIndex)
     {
-      meshVertices[vertexIndex].targetCamera = targetCamera;
+      vertices[vertexIndex] = meshVertices[vertexIndex].vertex;
     }
+    targetMesh.vertices = vertices;
   }
 
   public bool Cache_Mesh_Into_MeshVertices()
   {
-    if(cachedMesh == null)
+    if(targetMesh == null)
       return false;
 
-    Vector3[] vertices = cachedMesh.vertices;
+    Vector3[] vertices = targetMesh.vertices;
     meshVertices = new MeshVertex[vertices.Length];
-    for(int vertexIndex = 0; vertexIndex < cachedMesh.vertices.Length; ++vertexIndex)
+    for(int vertexIndex = 0; vertexIndex < targetMesh.vertices.Length; ++vertexIndex)
     {
       MeshVertex meshVertex = new MeshVertex();
 
-      meshVertex.owner = targetObject;
-      meshVertex.index = vertexIndex;
+      meshVertex.targetObject = targetObject;
+      meshVertex.vertexIndex = vertexIndex;
       meshVertex.vertex = vertices[vertexIndex];
       meshVertex.targetCamera = targetCamera;
       meshVertex.Compute_RelativeToCamera();

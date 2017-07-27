@@ -128,7 +128,6 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(meshFilter == null)
       return false;
 
-
     Mesh possible_targetMesh = meshFilter.sharedMesh;
 
     if(possible_targetMesh.name.Contains("Instance"))
@@ -218,8 +217,11 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
       if(gridEnabled)
         DrawGrid();
 
-      Gizmos.color = Color.black;
-      DrawCross();
+      if(targetMesh != null)
+      {
+        Gizmos.color = Color.black;
+        DrawCross();
+      }
 
       Vector3 crossMid_WorldCoords = targetCamera.ViewportToWorldPoint(new Vector3(
         viewportPosition.x,
@@ -230,24 +232,23 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
   private void DrawCross()
   {
-    Vector2 screenMid = targetCamera.ViewportToScreenPoint(new Vector2(
-      viewportPosition.x, viewportPosition.y));
+    Vector2 objectMid = targetCamera.WorldToScreenPoint(targetObject.transform.position);
     Vector2 crossOffset = pixelGridSize / 2;
     Vector3 crossTopLeft = targetCamera.ScreenToWorldPoint(new Vector3(
-      screenMid.x - crossOffset.x,
-      screenMid.y + crossOffset.y,
+      objectMid.x - crossOffset.x,
+      objectMid.y + crossOffset.y,
       relativeDistance));
     Vector3 crossBotRight = targetCamera.ScreenToWorldPoint(new Vector3(
-      screenMid.x + crossOffset.x,
-      screenMid.y - crossOffset.y,
+      objectMid.x + crossOffset.x,
+      objectMid.y - crossOffset.y,
       relativeDistance));
     Vector3 crossBotLeft = targetCamera.ScreenToWorldPoint(new Vector3(
-      screenMid.x - crossOffset.x,
-      screenMid.y - crossOffset.y,
+      objectMid.x - crossOffset.x,
+      objectMid.y - crossOffset.y,
       relativeDistance));
     Vector3 crossTopRight = targetCamera.ScreenToWorldPoint(new Vector3(
-      screenMid.x + crossOffset.x,
-      screenMid.y + crossOffset.y,
+      objectMid.x + crossOffset.x,
+      objectMid.y + crossOffset.y,
       relativeDistance));
     
     Gizmos.DrawLine(crossTopLeft, crossBotRight);

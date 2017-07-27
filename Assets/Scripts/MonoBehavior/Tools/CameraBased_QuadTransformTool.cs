@@ -59,6 +59,7 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
       return Compute_RelativeToCamera();
     }
+
   }
 
   public GameObject targetObject;

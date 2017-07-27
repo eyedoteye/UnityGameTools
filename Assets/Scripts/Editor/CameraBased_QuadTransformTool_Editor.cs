@@ -44,6 +44,15 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     isFirstAttach = false;
   }
 
+  public void UndoMorph()
+  {
+    if(Event.current.commandName.Equals("UndoRedoPerformed"))
+    {
+      cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
+      cameraBased_QuadTransformTool.Apply_MeshVertices_To_TargetMesh();
+    }
+  }
+
   private void OnEnable()
   {
     cameraBased_QuadTransformTool = (CameraBased_QuadTransformTool)target;
@@ -82,7 +91,6 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     {
       CameraBased_QuadTransformTool.MeshVertex meshVertex =
         cameraBased_QuadTransformTool.meshVertices[vertexIndex];
-      meshVertex.Recache();
       CameraBased_QuadTransformTool.MeshVertex.RelativeToCamera relativeToCamera =
         meshVertex.relativeToCamera;
 
@@ -122,6 +130,8 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
   public override void OnInspectorGUI()
   {
+    UndoMorph();
+
     serializedObject.Update();
     UpdateVectorCache();
 

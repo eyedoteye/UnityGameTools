@@ -105,7 +105,11 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetMesh == null)
       return false;
 
-    Mesh possible_targetMesh = targetObject.GetComponent<MeshFilter>().sharedMesh;
+    MeshFilter meshFilter = targetObject.GetComponent<MeshFilter>();
+    if(meshFilter == null)
+      return false;
+
+    Mesh possible_targetMesh = meshFilter.sharedMesh;
     if(possible_targetMesh.name.Contains("Instance"))
       return true;
 
@@ -114,10 +118,18 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
 
   public bool GetMesh()
   {
+    targetMesh = null;
+
     if(targetObject == null)
       return false;
 
-    Mesh possible_targetMesh = targetObject.GetComponent<MeshFilter>().sharedMesh;
+    MeshFilter meshFilter = targetObject.GetComponent<MeshFilter>();
+    if(meshFilter == null)
+      return false;
+
+
+    Mesh possible_targetMesh = meshFilter.sharedMesh;
+
     if(possible_targetMesh.name.Contains("Instance"))
       targetMesh = possible_targetMesh;
     else

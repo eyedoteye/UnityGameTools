@@ -16,6 +16,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   private SerializedProperty pixelGridSizeProperty;
   private SerializedProperty gridEnabledProperty;
 
+  private SerializedProperty showGridProperty;
 
   private const string targetObjectPropertyName = "targetObject";
   private const string targetCameraPropertyName = "targetCamera";
@@ -25,9 +26,6 @@ public class CameraBased_QuadTransformTool_Editor : Editor
 
   private const string pixelGridSizePropertyName = "pixelGridSize";
   private const string gridEnabledPropertyName = "gridEnabled";
-
-  private const float resetButtonWidth = 50f;
-  private const float recenterButtonWidth = 90f;
 
   private bool isFirstAttach = true;
   private void OnFirstAttach()
@@ -158,6 +156,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     }
     EditorGUILayout.PropertyField(targetCameraProperty);
     EditorGUILayout.PropertyField(pixelGridSizeProperty);
+    EditorGUILayout.PropertyField(gridEnabledProperty);
 
     if(!(targetObjectProperty.objectReferenceValue == null))
     {

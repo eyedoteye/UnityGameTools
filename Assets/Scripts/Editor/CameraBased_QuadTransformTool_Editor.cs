@@ -167,6 +167,10 @@ public class CameraBased_QuadTransformTool_Editor : Editor
         cameraBased_QuadTransformTool.targetObject.transform.position);
       Vector2 pixelGridSize = pixelGridSizeProperty.vector2Value;
 
+      targetObjectPosition.x = (int)(targetObjectPosition.x * 100f) / 100f;
+      targetObjectPosition.y = (int)(targetObjectPosition.y * 100f) / 100f;
+      targetObjectPosition.z = (int)(targetObjectPosition.z * 100f) / 100f;
+
       Vector2 targetObjectGridPosition = targetObjectPosition;
       targetObjectGridPosition.x /= pixelGridSize.x;
       targetObjectGridPosition.y /= pixelGridSize.y;
@@ -186,6 +190,7 @@ public class CameraBased_QuadTransformTool_Editor : Editor
       newTargetObjectPosition =
         cameraBased_QuadTransformTool.targetCamera.ScreenToWorldPoint(
         newTargetObjectPosition);
+
 
       if(Vector3.Distance(newTargetObjectPosition,
         cameraBased_QuadTransformTool.targetObject.transform.position)

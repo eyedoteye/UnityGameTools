@@ -26,9 +26,9 @@ public class CameraBased_QuadTransformTool_Editor : Editor
   private const string pixelGridSizePropertyName = "pixelGridSize";
   private const string gridEnabledPropertyName = "gridEnabled";
 
-
   private const float resetButtonWidth = 50f;
-  
+  private const float recenterButtonWidth = 90f;
+
   private bool isFirstAttach = true;
   private void OnFirstAttach()
   {
@@ -159,6 +159,48 @@ public class CameraBased_QuadTransformTool_Editor : Editor
     EditorGUILayout.PropertyField(targetCameraProperty);
     EditorGUILayout.PropertyField(pixelGridSizeProperty);
 
+    if(!(targetObjectProperty.objectReferenceValue == null))
+    {
+      GameObject targetObject = cameraBased_QuadTransformTool.targetObject;
+
+      Vector3 targetObjectPosition = 
+        cameraBased_QuadTransformTool.targetCamera.WorldToScreenPoint(
+        cameraBased_QuadTransformTool.targetObject.transform.position);
+      Vector2 pixelGridSize = pixelGridSizeProperty.vector2Value;
+
+      Vector2 targetObjectGridPosition = targetObjectPosition;
+      targetObjectGridPosition.x /= pixelGridSize.x;
+      targetObjectGridPosition.y /= pixelGridSize.y;
+
+      Vector2 newTargetObjectGridPosition = EditorGUILayout.Vector2Field(
+        "Object Grid Position",
+        targetObjectGridPosition);
+      float newTargetRelativeDistance = EditorGUILayout.FloatField(
+        "Object Relative Distance",
+        targetObjectPosition.z);
+
+      Vector3 newTargetObjectPosition;
+
+      newTargetObjectPosition.x = newTargetObjectGridPosition.x * pixelGridSize.x;
+      newTargetObjectPosition.y = newTargetObjectGridPosition.y * pixelGridSize.y;
+      newTargetObjectPosition.z = newTargetRelativeDistance;
+      newTargetObjectPosition =
+        cameraBased_QuadTransformTool.targetCamera.ScreenToWorldPoint(
+        newTargetObjectPosition);
+
+      if(Vector3.Distance(newTargetObjectPosition,
+        cameraBased_QuadTransformTool.targetObject.transform.position)
+        > 0.001f)
+      {
+        Undo.RecordObject(
+          cameraBased_QuadTransformTool.targetObject.transform,
+          "Transform Object Position");
+        cameraBased_QuadTransformTool.targetObject.transform.position
+          = newTargetObjectPosition;
+        cameraBased_QuadTransformTool.GetMesh();
+        cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
+      }
+    }
     Build_MeshVertices_Editors();
 
     ApplyVectorCache();

@@ -117,6 +117,22 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     return false;
   }
 
+  public bool Recenter()
+  {
+    if(targetObject == null)
+      return false;
+
+    for(int vertexIndex = 0; vertexIndex < meshVertices.Length; ++vertexIndex)
+    {
+      meshVertices[vertexIndex].vertex -= targetObject.transform.position;
+      targetMesh.vertices[vertexIndex] = meshVertices[vertexIndex].vertex;
+    }
+
+    targetObject.transform.position = new Vector3(0, 0, 0);
+
+    return true;
+  }
+
   public bool GetMesh()
   {
     targetMesh = null;

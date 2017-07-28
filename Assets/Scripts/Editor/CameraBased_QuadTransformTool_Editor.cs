@@ -200,6 +200,17 @@ public class CameraBased_QuadTransformTool_Editor : Editor
         cameraBased_QuadTransformTool.GetMesh();
         cameraBased_QuadTransformTool.Cache_Mesh_Into_MeshVertices();
       }
+
+      EditorGUILayout.BeginHorizontal();
+      GUILayout.FlexibleSpace();
+      if(GUILayout.Button("Recenter"))
+      {
+        Undo.RecordObject(
+          cameraBased_QuadTransformTool.targetMesh,
+          "Recenter Mesh Positions");
+        cameraBased_QuadTransformTool.Recenter();
+      }
+      EditorGUILayout.EndHorizontal();
     }
     Build_MeshVertices_Editors();
 

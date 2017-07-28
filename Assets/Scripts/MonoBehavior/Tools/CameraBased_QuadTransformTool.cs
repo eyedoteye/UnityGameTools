@@ -14,7 +14,6 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     // Note: Strored In Screen Coordinates
     public struct RelativeToCamera
     {
-      public Vector2 gridPosition;
       public Vector2 screenPosition;
       public float distance;
     } public RelativeToCamera relativeToCamera;
@@ -122,13 +121,36 @@ public class CameraBased_QuadTransformTool : MonoBehaviour {
     if(targetObject == null)
       return false;
 
+    Vector3 targetScreenPosition = targetCamera.WorldToScreenPoint(
+      targetObject.transform.position);
+
+    Vector3 mesh_ScreenCenter = new Vector3(0f, 0f, 0f);
+
     for(int vertexIndex = 0; vertexIndex < meshVertices.Length; ++vertexIndex)
     {
-      meshVertices[vertexIndex].vertex -= targetObject.transform.position;
-      targetMesh.vertices[vertexIndex] = meshVertices[vertexIndex].vertex;
+      MeshVertex.RelativeToCamera relativeToCamera = meshVertices[vertexIndex].relativeToCamera;
+      mesh_ScreenCenter.x += relativeToCamera.screenPosition.x;
+      mesh_ScreenCenter.y += relativeToCamera.screenPosition.y;
+      mesh_ScreenCenter.z += relativeToCamera.distance;
+    }
+    mesh_ScreenCenter.x /= meshVertices.Length;
+    mesh_ScreenCenter.y /= meshVertices.Length;
+    mesh_ScreenCenter.z /= meshVertices.Length;
+
+    Vector3 offset = targetScreenPosition - mesh_ScreenCenter;
+    
+    for(int vertexIndex = 0; vertexIndex < meshVertices.Length; ++vertexIndex)
+    {
+      MeshVertex.RelativeToCamera relativeToCamera = meshVertices[vertexIndex].relativeToCamera;
+      relativeToCamera.screenPosition.x += offset.x;
+      relativeToCamera.screenPosition.y += offset.y;
+      relativeToCamera.distance += offset.z;
+
+      meshVertices[vertexIndex].relativeToCamera = relativeToCamera;
+      meshVertices[vertexIndex].Apply_RelativeToCamera();
     }
 
-    targetObject.transform.position = new Vector3(0, 0, 0);
+    Apply_MeshVertices_To_TargetMesh();
 
     return true;
   }
